@@ -23,7 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { getTestAttemptsForUser, getTestById } from "@/lib/data";
 import { TestAttempt } from "@/lib/types";
 import { User, TrendingUp, BarChart, Trophy } from "lucide-react";
-import { format, formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import {
   ChartContainer,
   ChartTooltip,
@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/chart"
 import { Bar, BarChart as RechartsBarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { Button } from "@/components/ui/button";
+import { RelativeTime } from "@/components/relative-time";
 
 const chartConfig = {
   score: {
@@ -168,7 +169,7 @@ export default function ProfilePage() {
                           </div>
                         </TableCell>
                         <TableCell className="text-right text-muted-foreground" title={format(new Date(attempt.date), "PPP p")}>
-                          {formatDistanceToNow(new Date(attempt.date), { addSuffix: true })}
+                          <RelativeTime date={attempt.date} />
                         </TableCell>
                       </TableRow>
                     );
@@ -182,5 +183,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    
