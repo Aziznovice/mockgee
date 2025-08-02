@@ -15,7 +15,7 @@ export default function QuizPage({ params }: { params: { id: string } }) {
   return (
     <div className="flex min-h-screen w-full flex-col">
       <Header />
-      <main className="flex-1 pt-8">
+      <main className="flex-1 pt-8 bg-muted">
         <QuizInterface test={test} questions={questions} />
       </main>
     </div>
