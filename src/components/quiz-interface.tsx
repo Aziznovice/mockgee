@@ -66,7 +66,7 @@ export function QuizInterface({ test, questions }: QuizInterfaceProps) {
                 key={index}
                 className={cn(
                   "h-2 w-2 rounded-full transition-all",
-                  index === currentQuestionIndex ? "bg-primary scale-125" : "bg-muted"
+                  index === currentQuestionIndex ? "bg-accent scale-125" : "bg-muted"
                 )}
               />
             ))}
@@ -107,7 +107,7 @@ export function QuizInterface({ test, questions }: QuizInterfaceProps) {
             <ArrowLeft className="mr-2 h-4 w-4" /> Back
           </Button>
           {currentQuestionIndex < questions.length - 1 ? (
-            <Button onClick={handleNext} className="bg-accent hover:bg-accent/90 text-accent-foreground">
+            <Button onClick={handleNext}>
               Next <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (

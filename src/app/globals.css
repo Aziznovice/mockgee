@@ -4,25 +4,25 @@
 
 @layer base {
   :root {
-    --background: 208 100% 97%;
+    --background: 0 0% 100%;
     --foreground: 210 10% 23%;
-    --card: 0 0% 100%;
+    --card: 0 0% 98%;
     --card-foreground: 210 10% 23%;
     --popover: 0 0% 100%;
     --popover-foreground: 210 10% 23%;
-    --primary: 188 50% 80%;
+    --primary: 210 40% 96.1%;
     --primary-foreground: 210 10% 15%;
-    --secondary: 208 100% 90%;
+    --secondary: 210 40% 90%;
     --secondary-foreground: 210 10% 23%;
-    --muted: 208 100% 90%;
+    --muted: 210 40% 90%;
     --muted-foreground: 210 10% 45%;
-    --accent: 5 90% 73%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 210 40% 94%;
+    --accent-foreground: 210 10% 23%;
     --destructive: 0 53% 58%;
     --destructive-foreground: 0 0% 100%;
-    --border: 208 50% 88%;
-    --input: 208 50% 92%;
-    --ring: 188 50% 70%;
+    --border: 210 10% 88%;
+    --input: 210 10% 92%;
+    --ring: 210 10% 70%;
     --radius: 0.8rem;
 
     /* Custom QuizWise Colors */
@@ -48,19 +48,19 @@
     --card-foreground: 208 100% 97%;
     --popover: 210 10% 10%;
     --popover-foreground: 208 100% 97%;
-    --primary: 188 50% 70%;
-    --primary-foreground: 210 10% 5%;
+    --primary: 210 10% 20%;
+    --primary-foreground: 208 100% 97%;
     --secondary: 210 10% 20%;
     --secondary-foreground: 208 100% 97%;
     --muted: 210 10% 20%;
     --muted-foreground: 208 100% 85%;
-    --accent: 5 80% 63%;
+    --accent: 210 10% 25%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 100%;
     --border: 210 10% 25%;
     --input: 210 10% 25%;
-    --ring: 188 50% 60%;
+    --ring: 210 10% 60%;
     
     /* Custom QuizWise Colors */
     --correct: 146 50% 40%;

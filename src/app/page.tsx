@@ -17,7 +17,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen w-full flex-col">
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 bg-muted/40">
         <div className="container mx-auto px-4 py-12 md:px-6">
           <section className="text-center">
             <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">
@@ -49,7 +49,7 @@ export default function Home() {
                   <p className="text-sm text-muted-foreground">{test.questionIds.length} questions</p>
                 </CardContent>
                 <CardFooter>
-                  <Button asChild className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+                  <Button asChild className="w-full">
                     <Link href={`/quiz/${test.id}`}>
                       Start Quiz <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
