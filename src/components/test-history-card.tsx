@@ -13,6 +13,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { useState } from "react";
+import Image from "next/image";
 
 interface SessionDetail {
     session: TestSession;
@@ -30,19 +31,35 @@ export function TestHistoryCard({ test, sessions }: TestHistoryCardProps) {
   return (
     <Card className="flex flex-col">
       <CardHeader>
-        <div className="flex justify-between items-start">
-            <Link href={`/profile/test/${test.id}`} className="group">
-                 <CardTitle className="text-xl group-hover:underline">{test.title}</CardTitle>
-                 <CardDescription className="text-xs mt-1">
-                    {sessions.length} session(s) started
-                 </CardDescription>
-            </Link>
-            <Button asChild className="w-full sm:w-auto" variant="outline">
-              <Link href={`/mock-test/${test.id}`}>
-                <Repeat className="mr-2 h-4 w-4" />
-                Start New Session
-              </Link>
-            </Button>
+        <div className="flex items-start gap-4">
+          <div className="w-20 h-20 md:w-24 md:h-24 flex-shrink-0 rounded-md overflow-hidden border">
+             <Image
+                src={test.imageUrl}
+                alt={test.title}
+                width={100}
+                height={100}
+                className="object-cover w-full h-full"
+                data-ai-hint="quiz knowledge"
+              />
+          </div>
+          <div className="flex-grow">
+            <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <Link href={`/profile/test/${test.id}`} className="group">
+                      <CardTitle className="text-xl group-hover:underline">{test.title}</CardTitle>
+                      <CardDescription className="text-xs mt-1">
+                          {sessions.length} session(s) started
+                      </CardDescription>
+                  </Link>
+                </div>
+                <Button asChild className="w-auto ml-4" variant="outline">
+                  <Link href={`/mock-test/${test.id}`}>
+                    <Repeat className="mr-2 h-4 w-4" />
+                    <span className="hidden sm:inline">New Session</span>
+                  </Link>
+                </Button>
+            </div>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="flex-grow space-y-3">
