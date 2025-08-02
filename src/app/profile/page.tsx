@@ -115,6 +115,18 @@ export default function ProfilePage() {
              </div>
           </div>
 
+          <div>
+             <div className="mb-4">
+                <h2 className="text-2xl font-bold font-headline">Recent Mock Tests</h2>
+                <p className="text-muted-foreground">Here are the results from your most recent mock tests.</p>
+             </div>
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {testHistories.map(({ test, attempts }) => (
+                    <TestHistoryCard key={test.id} test={test} attempts={attempts} />
+                ))}
+             </div>
+          </div>
+
           <Card>
              <CardHeader>
                 <CardTitle>Progress Over Time</CardTitle>
@@ -137,18 +149,6 @@ export default function ProfilePage() {
                 </ChartContainer>
              </CardContent>
           </Card>
-
-          <div>
-             <div className="mb-4">
-                <h2 className="text-2xl font-bold font-headline">Recent Mock Tests</h2>
-                <p className="text-muted-foreground">Here are the results from your most recent mock tests.</p>
-             </div>
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {testHistories.map(({ test, attempts }) => (
-                    <TestHistoryCard key={test.id} test={test} attempts={attempts} />
-                ))}
-             </div>
-          </div>
         </div>
       </main>
     </div>
