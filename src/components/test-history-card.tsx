@@ -26,7 +26,6 @@ interface TestHistoryCardProps {
 
 export function TestHistoryCard({ test, sessions }: TestHistoryCardProps) {
   if (!test) return null;
-  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <Card className="flex flex-col">
@@ -35,7 +34,7 @@ export function TestHistoryCard({ test, sessions }: TestHistoryCardProps) {
             <Link href={`/profile/test/${test.id}`} className="group">
                  <CardTitle className="text-xl group-hover:underline">{test.title}</CardTitle>
                  <CardDescription className="text-xs mt-1">
-                    {sessions.length} session(s)
+                    {sessions.length} attempt(s)
                  </CardDescription>
             </Link>
             <Button asChild className="w-full sm:w-auto" variant="outline">
@@ -167,7 +166,7 @@ function SessionHistory({ session, attempts, testId, sessionNumber }: { session:
                     !inProgressAttempt && <p className="text-sm text-muted-foreground italic p-2">No completed attempts for this session.</p>
                 )}
                  <Button asChild className="w-full" variant="outline">
-                    <Link href={`/mock-test/${test.id}?session=${session.id}`}>
+                    <Link href={`/mock-test/${testId}?session=${session.id}`}>
                         <Repeat className="mr-2 h-4 w-4" />
                         Take Again (Same Questions)
                     </Link>
