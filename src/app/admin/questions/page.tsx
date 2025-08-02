@@ -39,14 +39,12 @@ export default function QuestionsPage() {
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Questions</CardTitle>
-              <CardDescription>
+              <h1 className="font-semibold text-lg md:text-2xl">Questions</h1>
+              <p className="text-sm text-muted-foreground">
                 Manage all questions for the quizzes.
-              </CardDescription>
+              </p>
             </div>
             <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1 rounded-md bg-muted p-1">
@@ -72,9 +70,9 @@ export default function QuestionsPage() {
                     </span>
                 </Button>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+      <Card>
+        <CardContent className="pt-6">
           {view === "table" ? (
             <Table>
               <TableHeader>
