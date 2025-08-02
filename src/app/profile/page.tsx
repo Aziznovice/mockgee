@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getTestById, getSessionsForUser, getAttemptsForSession, testAttempts as allAttemptsData } from "@/lib/data";
+import { getTestById, getSessionsForUser, getAttemptsForSession, testAttempts as allAttemptsData, tests } from "@/lib/data";
 import type { TestAttempt, TestSession } from "@/lib/types";
 import { User, TrendingUp, BarChart, Trophy, Bell, Newspaper, Compass } from "lucide-react";
 import {
@@ -45,15 +45,20 @@ export default function ProfilePage() {
         ? Math.max(...completedAttempts.map(attempt => Math.round((attempt.score / attempt.totalQuestions) * 100)))
         : 0;
     
-    const sessionHistories = allSessions.map(session => {
-        const test = getTestById(session.testId);
-        const attempts = getAttemptsForSession(session.id);
-        return {
+    const testHistories = tests.map(test => {
+        const sessionsForTest = allSessions.filter(s => s.testId === test.id);
+        const sessionDetails = sessionsForTest.map(session => ({
             session,
-            test: test!,
-            attempts,
+            attempts: getAttemptsForSession(session.id)
+        })).filter(detail => detail.attempts.length > 0);
+
+        if (sessionDetails.length === 0) return null;
+
+        return {
+            test,
+            sessions: sessionDetails,
         };
-    }).filter(history => history.test && history.attempts.length > 0);
+    }).filter(Boolean);
 
 
     const chartData = completedAttempts.slice(0, 5).reverse().map(attempt => {
@@ -128,8 +133,8 @@ export default function ProfilePage() {
                 </Button>
              </div>
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {sessionHistories.map(({ test, session, attempts }) => (
-                    <TestHistoryCard key={session.id} test={test} session={session} attempts={attempts} />
+                {testHistories.map((history) => (
+                    history && <TestHistoryCard key={history.test.id} test={history.test} sessions={history.sessions} />
                 ))}
              </div>
           </div>
