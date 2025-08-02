@@ -103,14 +103,14 @@ export const testSessions: TestSession[] = [
 
 export const testAttempts: TestAttempt[] = [
     // Attempts for session 1
-    { id: 'att1', sessionId: 's1', date: '2024-07-18T09:00:00Z', score: 2, totalQuestions: 4, status: 'completed' },
-    { id: 'att2', sessionId: 's1', date: '2024-07-20T10:00:00Z', score: 3, totalQuestions: 4, status: 'completed' },
+    { id: 'att1', sessionId: 's1', startedDate: '2024-07-18T09:00:00Z', completedDate: '2024-07-18T09:05:30Z', score: 2, totalQuestions: 4, status: 'completed' },
+    { id: 'att2', sessionId: 's1', startedDate: '2024-07-20T10:00:00Z', completedDate: '2024-07-20T10:04:00Z', score: 3, totalQuestions: 4, status: 'completed' },
     // Attempt for session 2
-    { id: 'att3', sessionId: 's2', date: '2024-07-21T11:00:00Z', score: 4, totalQuestions: 4, status: 'completed' },
+    { id: 'att3', sessionId: 's2', startedDate: '2024-07-21T11:00:00Z', completedDate: '2024-07-21T11:03:15Z', score: 4, totalQuestions: 4, status: 'completed' },
     // Attempt for session 3
-    { id: 'att4', sessionId: 's3', date: '2024-07-19T14:30:00Z', score: 1, totalQuestions: 1, status: 'completed' },
+    { id: 'att4', sessionId: 's3', startedDate: '2024-07-19T14:30:00Z', completedDate: '2024-07-19T14:31:00Z', score: 1, totalQuestions: 1, status: 'completed' },
     // In-progress attempt for session 4
-    { id: 'att5', sessionId: 's4', date: '2024-07-22T11:00:00Z', score: 0, totalQuestions: 1, status: 'in-progress', answers: {} },
+    { id: 'att5', sessionId: 's4', startedDate: '2024-07-22T11:00:00Z', completedDate: '', score: 0, totalQuestions: 1, status: 'in-progress', answers: {} },
 ];
 
 
@@ -139,7 +139,7 @@ export const getQuestionsForTest = (testId: string) => {
 }
 
 export const getTestAttemptsForUser = () => {
-    return testAttempts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return testAttempts.sort((a, b) => new Date(b.startedDate).getTime() - new Date(a.startedDate).getTime());
 };
 
 export const getSessionsForUser = () => {
@@ -147,5 +147,5 @@ export const getSessionsForUser = () => {
 }
 
 export const getAttemptsForSession = (sessionId: string) => {
-    return testAttempts.filter(a => a.sessionId === sessionId).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return testAttempts.filter(a => a.sessionId === sessionId).sort((a, b) => new Date(b.startedDate).getTime() - new Date(a.startedDate).getTime());
 }

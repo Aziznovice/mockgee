@@ -40,7 +40,8 @@ export interface TestSession {
 export interface TestAttempt {
     id: string;
     sessionId: string; // Links to TestSession instead of Test
-    date: string;
+    startedDate: string;
+    completedDate: string;
     score: number;
     totalQuestions: number;
     status: 'completed' | 'in-progress';

@@ -29,10 +29,11 @@ import {
 import { Line, LineChart as RechartsLineChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft, Repeat, Trophy, TrendingUp, TrendingDown, Star } from "lucide-react";
+import { ArrowLeft, Repeat, Trophy, TrendingUp, TrendingDown, Star, Clock } from "lucide-react";
 import { RelativeTime } from "@/components/relative-time";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { formatDistanceStrict } from "date-fns";
 
 const chartConfig = {
   score: {
@@ -51,7 +52,11 @@ export default function TestStatsPage() {
     }
 
     const allUserAttempts = getTestAttemptsForUser();
-    const testAttempts = allUserAttempts.filter(a => a.testId === id && a.status === 'completed');
+    const testAttempts = allUserAttempts.filter(a => {
+        const session = getSessionById(a.sessionId);
+        return session?.testId === id && a.status === 'completed';
+    });
+    
 
     const completedCount = testAttempts.length;
 
@@ -63,7 +68,7 @@ export default function TestStatsPage() {
     const chartData = testAttempts.map((attempt, index) => ({
         name: `Attempt ${index + 1}`,
         score: Math.round((attempt.score / attempt.totalQuestions) * 100),
-        date: attempt.date
+        date: attempt.completedDate
     })).reverse();
 
     const getMotivationalMessage = () => {
@@ -73,6 +78,12 @@ export default function TestStatsPage() {
         if (completedCount > 0) return "You're just getting started! Every attempt is a learning opportunity. Keep going!";
         return "Ready to test your knowledge? Take the first attempt and see how you do!";
     }
+    
+    const formatDuration = (start: string, end: string) => {
+        if (!start || !end) return null;
+        return formatDistanceStrict(new Date(end), new Date(start));
+    }
+
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -188,6 +199,7 @@ export default function TestStatsPage() {
                         <TableRow>
                             <TableHead>Attempt</TableHead>
                             <TableHead>Date</TableHead>
+                            <TableHead>Duration</TableHead>
                             <TableHead>Score</TableHead>
                             <TableHead className="text-right">Result</TableHead>
                         </TableRow>
@@ -195,10 +207,12 @@ export default function TestStatsPage() {
                     <TableBody>
                         {testAttempts.map((attempt, index) => {
                             const scorePercent = Math.round((attempt.score / attempt.totalQuestions) * 100);
+                            const duration = formatDuration(attempt.startedDate, attempt.completedDate)
                             return (
                                 <TableRow key={attempt.id}>
                                     <TableCell className="font-medium">Attempt #{completedCount - index}</TableCell>
-                                    <TableCell><RelativeTime date={attempt.date}/></TableCell>
+                                    <TableCell><RelativeTime date={attempt.completedDate}/></TableCell>
+                                    <TableCell className="text-muted-foreground text-xs">{duration}</TableCell>
                                     <TableCell>{attempt.score}/{attempt.totalQuestions}</TableCell>
                                     <TableCell className="text-right">
                                         <Badge variant={scorePercent >= 75 ? "default" : "secondary"} className={cn(scorePercent >= 75 ? "bg-green-600" : scorePercent < 50 && "bg-red-600", "text-white")}>
@@ -228,4 +242,14 @@ export default function TestStatsPage() {
       </main>
     </div>
   );
+}
+
+// Helper function to find a session by ID
+function getSessionById(sessionId: string) {
+    // In a real app, this would fetch from your data source.
+    // For now, we'll assume testSessions is available in this scope
+    // You might need to import it if it's in another file.
+    // import { testSessions } from "@/lib/data";
+    // This is a placeholder. You need to get the sessions data here.
+    return null;
 }

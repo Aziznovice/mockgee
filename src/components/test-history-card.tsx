@@ -2,7 +2,7 @@
 import type { Test, TestAttempt, TestSession } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Repeat, TrendingUp, TrendingDown, Minus, PlayCircle, BarChart, ChevronDown, ChevronUp } from "lucide-react";
+import { Repeat, TrendingUp, TrendingDown, Minus, PlayCircle, BarChart, ChevronDown, ChevronUp, Clock } from "lucide-react";
 import Link from "next/link";
 import { RelativeTime } from "./relative-time";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/collapsible";
 import { useState } from "react";
 import Image from "next/image";
+import { formatDistanceStrict } from "date-fns";
 
 interface SessionDetail {
     session: TestSession;
@@ -118,6 +119,11 @@ function SessionHistory({ session, attempts, testId, sessionNumber }: { session:
       return <Minus className="h-4 w-4 text-muted-foreground" />;
     }
 
+    const formatDuration = (start: string, end: string) => {
+        if (!start || !end) return null;
+        return formatDistanceStrict(new Date(end), new Date(start));
+    }
+
     return (
         <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-2">
             <div className="flex items-center justify-between rounded-lg border p-3">
@@ -137,7 +143,7 @@ function SessionHistory({ session, attempts, testId, sessionNumber }: { session:
                     <div className="p-3 rounded-md bg-blue-50 border border-blue-200 dark:bg-blue-900/30 dark:border-blue-700">
                         <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-300">In Progress</h4>
                         <p className="text-xs text-blue-600 dark:text-blue-400">
-                            You started this test <RelativeTime date={inProgressAttempt.date} />.
+                            You started this test <RelativeTime date={inProgressAttempt.startedDate} />.
                         </p>
                         <Button asChild size="sm" className="mt-2 w-full bg-blue-600 hover:bg-blue-700">
                             <Link href={getContinueUrl()}>
@@ -151,13 +157,22 @@ function SessionHistory({ session, attempts, testId, sessionNumber }: { session:
                     <ul className="space-y-2">
                         {completedAttempts.slice(0, 3).map((attempt, index) => {
                             const percentage = Math.round((attempt.score / attempt.totalQuestions) * 100);
+                            const duration = formatDuration(attempt.startedDate, attempt.completedDate);
                             return (
                                  <li key={attempt.id} className="flex justify-between items-center text-sm p-2 rounded-md bg-muted/50">
                                     <div className="flex flex-col">
                                        <span>Score: <span className="font-semibold">{percentage}%</span> ({attempt.score}/{attempt.totalQuestions})</span>
-                                       <span className="text-xs text-muted-foreground">
-                                         <RelativeTime date={attempt.date} />
-                                       </span>
+                                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                          <span>
+                                            <RelativeTime date={attempt.completedDate} />
+                                          </span>
+                                          {duration && (
+                                            <span className="flex items-center gap-1">
+                                                <Clock className="h-3 w-3" />
+                                                {duration}
+                                            </span>
+                                          )}
+                                       </div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         {index === 0 && improvement !== null && (
