@@ -10,7 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getTestAttemptsForUser, getTestById } from "@/lib/data";
+import { getTestAttemptsForUser, getTestById, tests } from "@/lib/data";
+import type { TestAttempt, Test } from "@/lib/types";
 import { User, TrendingUp, BarChart, Trophy } from "lucide-react";
 import {
   ChartContainer,
@@ -20,7 +21,7 @@ import {
 } from "@/components/ui/chart"
 import { Bar, BarChart as RechartsBarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { Button } from "@/components/ui/button";
-import { TestAttemptCard } from "@/components/test-attempt-card";
+import { TestHistoryCard } from "@/components/test-history-card";
 
 const chartConfig = {
   score: {
@@ -30,16 +31,32 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export default function ProfilePage() {
-    const testAttempts = getTestAttemptsForUser();
-    const totalTests = testAttempts.length;
+    const allAttempts = getTestAttemptsForUser();
+    const totalTests = allAttempts.length;
     const averageScore = totalTests > 0 
-        ? Math.round(testAttempts.reduce((acc, attempt) => acc + (attempt.score / attempt.totalQuestions) * 100, 0) / totalTests)
+        ? Math.round(allAttempts.reduce((acc, attempt) => acc + (attempt.score / attempt.totalQuestions) * 100, 0) / totalTests)
         : 0;
     const highestScore = totalTests > 0
-        ? Math.max(...testAttempts.map(attempt => Math.round((attempt.score / attempt.totalQuestions) * 100)))
+        ? Math.max(...allAttempts.map(attempt => Math.round((attempt.score / attempt.totalQuestions) * 100)))
         : 0;
+    
+    const attemptsByTest = allAttempts.reduce((acc, attempt) => {
+        if (!acc[attempt.testId]) {
+            acc[attempt.testId] = [];
+        }
+        acc[attempt.testId].push(attempt);
+        return acc;
+    }, {} as Record<string, TestAttempt[]>);
 
-    const chartData = testAttempts.slice(0, 5).reverse().map(attempt => {
+    const testHistories = Object.keys(attemptsByTest).map(testId => {
+        const test = getTestById(testId);
+        return {
+            test: test!,
+            attempts: attemptsByTest[testId],
+        };
+    }).filter(history => history.test);
+
+    const chartData = allAttempts.slice(0, 5).reverse().map(attempt => {
         const test = getTestById(attempt.testId);
         return {
             name: test?.title.slice(0,15) + "..." || "Test",
@@ -113,7 +130,7 @@ export default function ProfilePage() {
                             />
                         <YAxis domain={[0, 100]} unit="%" tickMargin={10} axisLine={false} tickLine={false}/>
                         <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                        <Bar dataKey="score" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]}/>
+                        <Bar dataKey="score" fill="var(--color-score)" radius={[4, 4, 0, 0]}/>
                     </RechartsBarChart>
                 </ChartContainer>
              </CardContent>
@@ -125,8 +142,8 @@ export default function ProfilePage() {
                 <p className="text-muted-foreground">Here are the results from your most recent mock tests.</p>
              </div>
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {testAttempts.map((attempt) => (
-                    <TestAttemptCard key={attempt.id} attempt={attempt}/>
+                {testHistories.map(({ test, attempts }) => (
+                    <TestHistoryCard key={test.id} test={test} attempts={attempts} />
                 ))}
              </div>
           </div>
