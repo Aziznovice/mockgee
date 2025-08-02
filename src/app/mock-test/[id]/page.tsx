@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getTestById, getQuestionsForTest } from "@/lib/data";
+import { getTestById, getQuestionsForSession, getOrCreateTestSession } from "@/lib/data";
 import { Header } from "@/components/header";
 import { QuizInterface } from "@/components/quiz-interface";
 import type { UserAnswers } from "@/lib/types";
@@ -11,7 +11,16 @@ export default function MockTestPage({ params, searchParams }: { params: { id: s
     notFound();
   }
 
-  const questions = getQuestionsForTest(params.id);
+  // When starting a new test, we find or create a session.
+  // The session ID could be passed in the URL for continuing a test.
+  const sessionId = typeof searchParams?.session === 'string' ? searchParams.session : getOrCreateTestSession(test.id)?.id;
+
+  if (!sessionId) {
+      // Handle case where session can't be found or created
+      return <div>Error: Could not start or find test session.</div>
+  }
+
+  const questions = getQuestionsForSession(sessionId);
   let initialAnswers: UserAnswers = {};
 
   try {
@@ -27,7 +36,7 @@ export default function MockTestPage({ params, searchParams }: { params: { id: s
     <div className="flex min-h-screen w-full flex-col">
       <Header />
       <main className="flex-1 pt-8 bg-muted">
-        <QuizInterface test={test} questions={questions} initialAnswers={initialAnswers} />
+        <QuizInterface test={test} questions={questions} initialAnswers={initialAnswers} sessionId={sessionId} />
       </main>
     </div>
   );

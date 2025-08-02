@@ -21,15 +21,25 @@ export interface Test {
   id: string;
   title: string;
   description: string;
-  questionIds: string[];
+  // This will now represent all possible questions for this topic
+  allQuestionIds: string[]; 
   imageUrl: string;
 }
 
 export type UserAnswers = Record<string, string>;
 
-export interface TestAttempt {
+// A TestSession represents a specific instance of a test being taken
+// with a specific set of questions.
+export interface TestSession {
     id: string;
     testId: string;
+    questionIds: string[];
+    startedDate: string;
+}
+
+export interface TestAttempt {
+    id: string;
+    sessionId: string; // Links to TestSession instead of Test
     date: string;
     score: number;
     totalQuestions: number;

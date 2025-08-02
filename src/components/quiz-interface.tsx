@@ -21,12 +21,13 @@ import { cn } from "@/lib/utils";
 interface QuizInterfaceProps {
   test: Test;
   questions: Question[];
+  sessionId: string;
   initialAnswers?: UserAnswers;
 }
 
 type ViewType = "card" | "form";
 
-export function QuizInterface({ test, questions, initialAnswers = {} }: QuizInterfaceProps) {
+export function QuizInterface({ test, questions, sessionId, initialAnswers = {} }: QuizInterfaceProps) {
   const router = useRouter();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<UserAnswers>(initialAnswers);
@@ -52,7 +53,7 @@ export function QuizInterface({ test, questions, initialAnswers = {} }: QuizInte
 
   const handleSubmit = () => {
     const answersQuery = encodeURIComponent(JSON.stringify(answers));
-    router.push(`/mock-test/${test.id}/results?answers=${answersQuery}`);
+    router.push(`/mock-test/${test.id}/results?session=${sessionId}&answers=${answersQuery}`);
   };
 
   return (

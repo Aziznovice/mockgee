@@ -10,8 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getTestAttemptsForUser, getTestById } from "@/lib/data";
-import type { TestAttempt } from "@/lib/types";
+import { getTestById, getSessionsForUser, getAttemptsForSession, testAttempts as allAttemptsData } from "@/lib/data";
+import type { TestAttempt, TestSession } from "@/lib/types";
 import { User, TrendingUp, BarChart, Trophy, Bell, Newspaper, Compass } from "lucide-react";
 import {
   ChartContainer,
@@ -33,7 +33,8 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export default function ProfilePage() {
-    const allAttempts = getTestAttemptsForUser();
+    const allSessions = getSessionsForUser();
+    const allAttempts = allAttemptsData;
     const completedAttempts = allAttempts.filter(a => a.status === 'completed');
     const totalTests = completedAttempts.length;
 
@@ -44,24 +45,20 @@ export default function ProfilePage() {
         ? Math.max(...completedAttempts.map(attempt => Math.round((attempt.score / attempt.totalQuestions) * 100)))
         : 0;
     
-    const attemptsByTest = allAttempts.reduce((acc, attempt) => {
-        if (!acc[attempt.testId]) {
-            acc[attempt.testId] = [];
-        }
-        acc[attempt.testId].push(attempt);
-        return acc;
-    }, {} as Record<string, TestAttempt[]>);
-
-    const testHistories = Object.keys(attemptsByTest).map(testId => {
-        const test = getTestById(testId);
+    const sessionHistories = allSessions.map(session => {
+        const test = getTestById(session.testId);
+        const attempts = getAttemptsForSession(session.id);
         return {
+            session,
             test: test!,
-            attempts: attemptsByTest[testId],
+            attempts,
         };
-    }).filter(history => history.test);
+    }).filter(history => history.test && history.attempts.length > 0);
+
 
     const chartData = completedAttempts.slice(0, 5).reverse().map(attempt => {
-        const test = getTestById(attempt.testId);
+        const session = allSessions.find(s => s.id === attempt.sessionId);
+        const test = session ? getTestById(session.testId) : null;
         return {
             name: test?.title.slice(0,15) + "..." || "Test",
             score: Math.round((attempt.score / attempt.totalQuestions) * 100),
@@ -131,8 +128,8 @@ export default function ProfilePage() {
                 </Button>
              </div>
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {testHistories.map(({ test, attempts }) => (
-                    <TestHistoryCard key={test.id} test={test} attempts={attempts} />
+                {sessionHistories.map(({ test, session, attempts }) => (
+                    <TestHistoryCard key={session.id} test={test} session={session} attempts={attempts} />
                 ))}
              </div>
           </div>

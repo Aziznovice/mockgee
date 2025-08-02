@@ -46,7 +46,7 @@ export default function Home() {
                   <CardDescription>{test.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
-                  <p className="text-sm text-muted-foreground">{test.questionIds.length} questions</p>
+                  <p className="text-sm text-muted-foreground">{test.allQuestionIds.length} questions</p>
                 </CardContent>
                 <CardFooter>
                   <Button asChild className="w-full">

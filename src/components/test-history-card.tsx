@@ -1,8 +1,8 @@
 
-import type { Test, TestAttempt } from "@/lib/types";
+import type { Test, TestAttempt, TestSession } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Repeat, TrendingUp, TrendingDown, Minus, PlayCircle, BarChart } from "lucide-react";
+import { Repeat, TrendingUp, TrendingDown, Minus, PlayCircle, BarChart, Calendar } from "lucide-react";
 import Link from "next/link";
 import { RelativeTime } from "./relative-time";
 import { cn } from "@/lib/utils";
@@ -10,10 +10,11 @@ import { Badge } from "./ui/badge";
 
 interface TestHistoryCardProps {
   test: Test;
+  session: TestSession;
   attempts: TestAttempt[];
 }
 
-export function TestHistoryCard({ test, attempts }: TestHistoryCardProps) {
+export function TestHistoryCard({ test, session, attempts }: TestHistoryCardProps) {
   if (!test) return null;
 
   const completedAttempts = attempts.filter(a => a.status === 'completed');
@@ -34,9 +35,9 @@ export function TestHistoryCard({ test, attempts }: TestHistoryCardProps) {
   }
 
   const getContinueUrl = () => {
-      if (!inProgressAttempt) return `/mock-test/${test.id}`;
+      if (!inProgressAttempt) return `/mock-test/${test.id}?session=${session.id}`;
       const answersQuery = encodeURIComponent(JSON.stringify(inProgressAttempt.answers || {}));
-      return `/mock-test/${test.id}?answers=${answersQuery}`;
+      return `/mock-test/${test.id}?session=${session.id}&answers=${answersQuery}`;
   }
 
   const getImprovementIcon = () => {
@@ -52,26 +53,15 @@ export function TestHistoryCard({ test, attempts }: TestHistoryCardProps) {
         <div className="flex justify-between items-start">
             <Link href={`/profile/test/${test.id}`} className="group">
                  <CardTitle className="text-xl group-hover:underline">{test.title}</CardTitle>
-                 {latestScore !== null ? (
-                    <CardDescription>
-                        Latest score: <span className="font-bold text-primary">{latestScore}%</span>
-                    </CardDescription>
-                 ) : (
-                    <CardDescription>No completed tests yet.</CardDescription>
-                 )}
+                 <CardDescription className="flex items-center gap-1.5 text-xs mt-1">
+                    <Calendar className="h-3 w-3" />
+                    Session from <RelativeTime date={session.startedDate} />
+                 </CardDescription>
             </Link>
-             {improvement !== null && (
+             {latestScore !== null && (
                 <div className="flex items-center gap-1 text-sm">
-                    {getImprovementIcon()}
-                    <span className={cn(
-                        "font-semibold",
-                        improvement > 0 && "text-green-500",
-                        improvement < 0 && "text-red-500",
-                        improvement === 0 && "text-muted-foreground",
-                    )}>
-                        {improvement > 0 ? `+${improvement}` : improvement}%
-                    </span>
-                    <span className="text-muted-foreground text-xs">(vs prev)</span>
+                    <span className="text-muted-foreground text-xs">Latest:</span>
+                    <span className="font-bold text-lg text-primary">{latestScore}%</span>
                 </div>
             )}
         </div>
@@ -91,7 +81,7 @@ export function TestHistoryCard({ test, attempts }: TestHistoryCardProps) {
                 </Button>
             </div>
         )}
-        <h4 className="text-sm font-semibold text-muted-foreground">Completed Attempts:</h4>
+        <h4 className="text-sm font-semibold text-muted-foreground">Completed Attempts ({completedAttempts.length}):</h4>
         {completedAttempts.length > 0 ? (
             <ul className="space-y-2">
                 {completedAttempts.slice(0, 3).map((attempt, index) => {
@@ -104,7 +94,22 @@ export function TestHistoryCard({ test, attempts }: TestHistoryCardProps) {
                                  <RelativeTime date={attempt.date} />
                                </span>
                             </div>
-                            {index === 0 && <Badge variant="secondary">Latest</Badge>}
+                            <div className="flex items-center gap-2">
+                                {index === 0 && improvement !== null && (
+                                     <div className="flex items-center gap-1 text-xs">
+                                        {getImprovementIcon()}
+                                        <span className={cn(
+                                            "font-semibold",
+                                            improvement > 0 && "text-green-500",
+                                            improvement < 0 && "text-red-500",
+                                            improvement === 0 && "text-muted-foreground",
+                                        )}>
+                                            {improvement > 0 ? `+${improvement}` : improvement}%
+                                        </span>
+                                    </div>
+                                )}
+                                {index === 0 && <Badge variant="secondary">Latest</Badge>}
+                            </div>
                         </li>
                     )
                 })}
@@ -121,7 +126,7 @@ export function TestHistoryCard({ test, attempts }: TestHistoryCardProps) {
           </Link>
         </Button>
         <Button asChild className="w-full" variant="outline">
-          <Link href={`/mock-test/${test.id}`}>
+          <Link href={`/mock-test/${test.id}?session=${session.id}`}>
             <Repeat className="mr-2 h-4 w-4" />
             Take Again
           </Link>

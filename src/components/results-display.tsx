@@ -23,9 +23,10 @@ interface ResultsDisplayProps {
   test: Test;
   questions: Question[];
   userAnswers: UserAnswers;
+  sessionId: string;
 }
 
-export function ResultsDisplay({ test, questions, userAnswers }: ResultsDisplayProps) {
+export function ResultsDisplay({ test, questions, userAnswers, sessionId }: ResultsDisplayProps) {
   const score = questions.reduce((acc, question) => {
     return userAnswers[question.id] === question.correctChoiceId ? acc + 1 : acc;
   }, 0);
@@ -48,7 +49,7 @@ export function ResultsDisplay({ test, questions, userAnswers }: ResultsDisplayP
           <p className="text-xl text-muted-foreground mt-2">You answered {score} out of {questions.length} questions correctly.</p>
           <div className="mt-6 flex gap-4 justify-center">
              <Button asChild>
-                <Link href={`/mock-test/${test.id}`}>
+                <Link href={`/mock-test/${test.id}?session=${sessionId}`}>
                     <Repeat className="mr-2 h-4 w-4"/>
                     Try Again
                 </Link>

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getTestById, getQuestionsForTest } from "@/lib/data";
+import { getTestById, getQuestionsForSession } from "@/lib/data";
 import { Header } from "@/components/header";
 import { ResultsDisplay } from "@/components/results-display";
 import type { UserAnswers } from "@/lib/types";
@@ -9,7 +9,7 @@ export default function ResultsPage({
   searchParams,
 }: {
   params: { id: string };
-  searchParams: { answers?: string };
+  searchParams: { answers?: string, session?: string };
 }) {
   const test = getTestById(params.id);
   
@@ -17,7 +17,12 @@ export default function ResultsPage({
     notFound();
   }
 
-  const questions = getQuestionsForTest(params.id);
+  const sessionId = searchParams.session;
+  if (!sessionId) {
+      return <div>Error: Session ID is missing.</div>
+  }
+
+  const questions = getQuestionsForSession(sessionId);
   let userAnswers: UserAnswers = {};
 
   try {
@@ -33,7 +38,7 @@ export default function ResultsPage({
     <div className="flex min-h-screen w-full flex-col">
       <Header />
       <main className="flex-1 pt-8">
-        <ResultsDisplay test={test} questions={questions} userAnswers={userAnswers} />
+        <ResultsDisplay test={test} questions={questions} userAnswers={userAnswers} sessionId={sessionId} />
       </main>
     </div>
   );
