@@ -2,7 +2,7 @@
 import type { Test, TestAttempt, TestSession } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Repeat, TrendingUp, TrendingDown, Minus, PlayCircle, BarChart, Calendar, ChevronDown, ChevronUp } from "lucide-react";
+import { Repeat, TrendingUp, TrendingDown, Minus, PlayCircle, BarChart, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import { RelativeTime } from "./relative-time";
 import { cn } from "@/lib/utils";
@@ -47,8 +47,14 @@ export function TestHistoryCard({ test, sessions }: TestHistoryCardProps) {
         </div>
       </CardHeader>
       <CardContent className="flex-grow space-y-3">
-        {sessions.map(({ session, attempts }) => (
-            <SessionHistory key={session.id} session={session} attempts={attempts} testId={test.id} />
+        {sessions.map(({ session, attempts }, index) => (
+            <SessionHistory 
+                key={session.id} 
+                session={session} 
+                attempts={attempts} 
+                testId={test.id}
+                sessionNumber={sessions.length - index}
+            />
         ))}
       </CardContent>
       <CardFooter>
@@ -64,7 +70,7 @@ export function TestHistoryCard({ test, sessions }: TestHistoryCardProps) {
 }
 
 
-function SessionHistory({ session, attempts, testId }: { session: TestSession, attempts: TestAttempt[], testId: string }) {
+function SessionHistory({ session, attempts, testId, sessionNumber }: { session: TestSession, attempts: TestAttempt[], testId: string, sessionNumber: number }) {
     const completedAttempts = attempts.filter(a => a.status === 'completed');
     const inProgressAttempt = attempts.find(a => a.status === 'in-progress');
     const [isOpen, setIsOpen] = useState(true);
@@ -99,12 +105,9 @@ function SessionHistory({ session, attempts, testId }: { session: TestSession, a
     return (
         <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-2">
             <div className="flex items-center justify-between rounded-lg border p-3">
-                <div className="flex items-center gap-3">
-                    <Calendar className="h-5 w-5 text-muted-foreground" />
-                    <div className="flex flex-col">
-                        <h4 className="text-sm font-semibold">Session from <RelativeTime date={session.startedDate} /></h4>
-                        <p className="text-xs text-muted-foreground">{completedAttempts.length} completed, {inProgressAttempt ? 1 : 0} in progress</p>
-                    </div>
+                <div className="flex flex-col">
+                    <h4 className="font-semibold">Attempt #{sessionNumber}</h4>
+                    <p className="text-xs text-muted-foreground">Started <RelativeTime date={session.startedDate} /></p>
                 </div>
                  <CollapsibleTrigger asChild>
                     <Button variant="ghost" size="sm" className="w-9 p-0">
@@ -164,7 +167,7 @@ function SessionHistory({ session, attempts, testId }: { session: TestSession, a
                     !inProgressAttempt && <p className="text-sm text-muted-foreground italic p-2">No completed attempts for this session.</p>
                 )}
                  <Button asChild className="w-full" variant="outline">
-                    <Link href={`/mock-test/${testId}?session=${session.id}`}>
+                    <Link href={`/mock-test/${test.id}?session=${session.id}`}>
                         <Repeat className="mr-2 h-4 w-4" />
                         Take Again (Same Questions)
                     </Link>
