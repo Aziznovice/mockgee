@@ -2,7 +2,7 @@
 import type { Test, TestAttempt } from "@/lib/types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Repeat, TrendingUp, TrendingDown, Minus, PlayCircle } from "lucide-react";
+import { Repeat, TrendingUp, TrendingDown, Minus, PlayCircle, BarChart } from "lucide-react";
 import Link from "next/link";
 import { RelativeTime } from "./relative-time";
 import { cn } from "@/lib/utils";
@@ -49,8 +49,8 @@ export function TestHistoryCard({ test, attempts }: TestHistoryCardProps) {
     <Card className="flex flex-col">
       <CardHeader>
         <div className="flex justify-between items-start">
-            <div>
-                 <CardTitle className="text-xl">{test.title}</CardTitle>
+            <Link href={`/profile/test/${test.id}`} className="group">
+                 <CardTitle className="text-xl group-hover:underline">{test.title}</CardTitle>
                  {latestScore !== null ? (
                     <CardDescription>
                         Latest score: <span className="font-bold text-primary">{latestScore}%</span>
@@ -58,7 +58,7 @@ export function TestHistoryCard({ test, attempts }: TestHistoryCardProps) {
                  ) : (
                     <CardDescription>No completed tests yet.</CardDescription>
                  )}
-            </div>
+            </Link>
              {improvement !== null && (
                 <div className="flex items-center gap-1 text-sm">
                     {getImprovementIcon()}
@@ -112,7 +112,13 @@ export function TestHistoryCard({ test, attempts }: TestHistoryCardProps) {
             <p className="text-sm text-muted-foreground italic">No tests completed yet.</p>
         )}
       </CardContent>
-      <CardFooter>
+      <CardFooter className="grid grid-cols-2 gap-2">
+        <Button asChild className="w-full" variant="secondary">
+          <Link href={`/profile/test/${test.id}`}>
+            <BarChart className="mr-2 h-4 w-4" />
+            View Stats
+          </Link>
+        </Button>
         <Button asChild className="w-full" variant="outline">
           <Link href={`/quiz/${test.id}`}>
             <Repeat className="mr-2 h-4 w-4" />
