@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -62,7 +63,7 @@ export default function TestsPage() {
                 <TableRow key={test.id}>
                   <TableCell className="font-medium">{test.title}</TableCell>
                   <TableCell className="max-w-sm truncate">{test.description}</TableCell>
-                  <TableCell className="hidden md:table-cell">{test.questionIds.length}</TableCell>
+                  <TableCell className="hidden md:table-cell">{test.allQuestionIds.length}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
