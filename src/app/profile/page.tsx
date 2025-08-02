@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getTestAttemptsForUser } from "@/lib/data";
+import { getTestAttemptsForUser, getTestById } from "@/lib/data";
 import { User, TrendingUp, BarChart, Trophy } from "lucide-react";
 import {
   ChartContainer,
