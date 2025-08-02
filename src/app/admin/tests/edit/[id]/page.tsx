@@ -10,13 +10,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Trash2, PlusCircle, ArrowLeft } from 'lucide-react';
+import { Trash2, PlusCircle, ArrowLeft, UploadCloud } from 'lucide-react';
 import { getTestById, tags as allTags, tests } from '@/lib/data';
 import type { Test } from '@/lib/types';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const subjectSchema = z.object({
   id: z.string().optional(),
@@ -28,7 +28,6 @@ const subjectSchema = z.object({
 const testFormSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
-  imageUrl: z.string().url('Must be a valid URL'),
   useSubjects: z.boolean(),
   subjects: z.array(subjectSchema).optional(),
   tags: z.array(z.string()).optional(),
@@ -45,6 +44,37 @@ const testFormSchema = z.object({
 
 type TestFormData = z.infer<typeof testFormSchema>;
 
+function ImageUpload({ initialImageUrl }: { initialImageUrl: string }) {
+    const [preview, setPreview] = useState<string>(initialImageUrl);
+  
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+  
+    return (
+      <div>
+        <Label>Test Image</Label>
+        <div className="mt-2 flex items-center gap-6">
+           <div className="w-32 h-20 rounded-md border flex items-center justify-center bg-muted overflow-hidden">
+             {preview ? (
+                <Image src={preview} alt="Image Preview" width={128} height={80} className="object-cover w-full h-full" />
+             ) : (
+                <UploadCloud className="h-8 w-8 text-muted-foreground" />
+             )}
+           </div>
+          <Input id="image" type="file" onChange={handleFileChange} className="max-w-xs" />
+        </div>
+      </div>
+    );
+  }
+
 export default function EditTestPage() {
   const router = useRouter();
   const params = useParams();
@@ -58,7 +88,6 @@ export default function EditTestPage() {
     defaultValues: {
       title: existingTest?.title || '',
       description: existingTest?.description || '',
-      imageUrl: existingTest?.imageUrl || 'https://placehold.co/600x400',
       useSubjects: useSubjects,
       subjects: existingTest?.subjects || [],
       tags: existingTest?.tags || [],
@@ -82,6 +111,10 @@ export default function EditTestPage() {
     alert('Test saved successfully! (Check console for data)');
     router.push('/admin/tests');
   };
+
+  if (!existingTest) {
+      return <div>Loading...</div>
+  }
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
@@ -113,11 +146,7 @@ export default function EditTestPage() {
               <Textarea id="description" {...form.register('description')} />
                {form.formState.errors.description && <p className="text-red-500 text-sm">{form.formState.errors.description.message}</p>}
             </div>
-             <div>
-              <Label htmlFor="imageUrl">Image URL</Label>
-              <Input id="imageUrl" {...form.register('imageUrl')} />
-              {form.formState.errors.imageUrl && <p className="text-red-500 text-sm">{form.formState.errors.imageUrl.message}</p>}
-            </div>
+            <ImageUpload initialImageUrl={existingTest.imageUrl} />
           </CardContent>
         </Card>
 
