@@ -34,7 +34,7 @@ export function TestHistoryCard({ test, sessions }: TestHistoryCardProps) {
             <Link href={`/profile/test/${test.id}`} className="group">
                  <CardTitle className="text-xl group-hover:underline">{test.title}</CardTitle>
                  <CardDescription className="text-xs mt-1">
-                    {sessions.length} attempt(s)
+                    {sessions.length} session(s) started
                  </CardDescription>
             </Link>
             <Button asChild className="w-full sm:w-auto" variant="outline">
@@ -105,7 +105,7 @@ function SessionHistory({ session, attempts, testId, sessionNumber }: { session:
         <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-2">
             <div className="flex items-center justify-between rounded-lg border p-3">
                 <div className="flex flex-col">
-                    <h4 className="font-semibold">Attempt #{sessionNumber}</h4>
+                    <h4 className="font-semibold">Mock test {sessionNumber}</h4>
                     <p className="text-xs text-muted-foreground">Started <RelativeTime date={session.startedDate} /></p>
                 </div>
                  <CollapsibleTrigger asChild>
