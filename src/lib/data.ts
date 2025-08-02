@@ -79,7 +79,7 @@ export const tests: Test[] = [
   {
     id: '1',
     title: 'Web Development Basics',
-    description: 'A quick quiz to test your foundational knowledge of web development technologies.',
+    description: 'A quick mock test to test your foundational knowledge of web development technologies.',
     questionIds: ['q1', 'q2', 'q3', 'q5'],
     imageUrl: 'https://placehold.co/600x400',
   },

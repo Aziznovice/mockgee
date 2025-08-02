@@ -43,7 +43,7 @@ export default function QuestionsPage() {
             <div>
               <h1 className="font-semibold text-lg md:text-2xl">Questions</h1>
               <p className="text-sm text-muted-foreground">
-                Manage all questions for the quizzes.
+                Manage all questions for the mock tests.
               </p>
             </div>
             <div className="flex items-center gap-2">

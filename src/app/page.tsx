@@ -24,7 +24,7 @@ export default function Home() {
               Welcome to QuizWise
             </h1>
             <p className="mx-auto mt-4 max-w-[700px] text-muted-foreground md:text-xl">
-              Select a quiz below to test your knowledge. Sharpen your skills and learn something new!
+              Select a mock test below to test your knowledge. Sharpen your skills and learn something new!
             </p>
           </section>
 
@@ -50,8 +50,8 @@ export default function Home() {
                 </CardContent>
                 <CardFooter>
                   <Button asChild className="w-full">
-                    <Link href={`/quiz/${test.id}`}>
-                      Start Quiz <ArrowRight className="ml-2 h-4 w-4" />
+                    <Link href={`/mock-test/${test.id}`}>
+                      Start Mock Test <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
                 </CardFooter>

@@ -216,7 +216,7 @@ export default function TestStatsPage() {
             </CardContent>
             <CardFooter className="border-t pt-6">
                 <Button asChild className="w-full sm:w-auto ml-auto">
-                    <Link href={`/quiz/${test.id}`}>
+                    <Link href={`/mock-test/${test.id}`}>
                         <Repeat className="mr-2 h-4 w-4"/>
                         Take Again
                     </Link>

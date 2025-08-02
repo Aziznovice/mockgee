@@ -41,21 +41,21 @@ export function ResultsDisplay({ test, questions, userAnswers }: ResultsDisplayP
       <Card className="w-full max-w-3xl shadow-2xl rounded-xl mb-8">
         <CardHeader className="items-center text-center">
           <CardTitle className="text-3xl">Results for {test.title}</CardTitle>
-          <CardDescription>You've completed the quiz!</CardDescription>
+          <CardDescription>You've completed the mock test!</CardDescription>
         </CardHeader>
         <CardContent className="text-center">
           <div className="text-6xl font-bold font-headline text-accent">{scorePercentage}%</div>
           <p className="text-xl text-muted-foreground mt-2">You answered {score} out of {questions.length} questions correctly.</p>
           <div className="mt-6 flex gap-4 justify-center">
              <Button asChild>
-                <Link href={`/quiz/${test.id}`}>
+                <Link href={`/mock-test/${test.id}`}>
                     <Repeat className="mr-2 h-4 w-4"/>
                     Try Again
                 </Link>
              </Button>
              <Button asChild variant="outline">
                 <Link href="/">
-                    Back to Quizzes
+                    Back to Mock Tests
                 </Link>
              </Button>
           </div>

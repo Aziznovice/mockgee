@@ -52,7 +52,7 @@ export function QuizInterface({ test, questions, initialAnswers = {} }: QuizInte
 
   const handleSubmit = () => {
     const answersQuery = encodeURIComponent(JSON.stringify(answers));
-    router.push(`/quiz/${test.id}/results?answers=${answersQuery}`);
+    router.push(`/mock-test/${test.id}/results?answers=${answersQuery}`);
   };
 
   return (
@@ -168,7 +168,7 @@ export function QuizInterface({ test, questions, initialAnswers = {} }: QuizInte
                 ))}
                  <div className="flex justify-end pt-4">
                     <Button onClick={handleSubmit} size="lg" className="bg-green-600 hover:bg-green-700 text-white">
-                        <CheckSquare className="mr-2 h-5 w-5" /> Submit Quiz
+                        <CheckSquare className="mr-2 h-5 w-5" /> Submit Mock Test
                     </Button>
                 </div>
             </div>

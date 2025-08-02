@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookMarked, Shield, User } from "lucide-react";
+import { BookMarked, Shield, User, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -15,6 +15,12 @@ export function Header() {
         </Link>
         <div className="flex flex-1 items-center justify-end space-x-2">
           <nav className="flex items-center gap-4">
+             <Button variant="ghost" asChild>
+                <Link href="/" className="text-sm font-medium transition-colors">
+                    <FileText className="mr-2 h-4 w-4" />
+                    Mock Tests
+                </Link>
+             </Button>
             <Button variant="ghost" asChild>
               <Link
                 href="/admin"

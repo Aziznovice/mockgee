@@ -33,16 +33,10 @@ export function TestHistoryCard({ test, attempts }: TestHistoryCardProps) {
     improvement = latestScore! - previousScore;
   }
 
-  const getImprovementIcon = () => {
-    if (improvement === null || improvement === 0) return <Minus className="h-4 w-4 text-muted-foreground" />;
-    if (improvement > 0) return <TrendingUp className="h-4 w-4 text-green-500" />;
-    return <TrendingDown className="h-4 w-4 text-red-500" />;
-  }
-
   const getContinueUrl = () => {
-      if (!inProgressAttempt) return `/quiz/${test.id}`;
+      if (!inProgressAttempt) return `/mock-test/${test.id}`;
       const answersQuery = encodeURIComponent(JSON.stringify(inProgressAttempt.answers || {}));
-      return `/quiz/${test.id}?answers=${answersQuery}`;
+      return `/mock-test/${test.id}?answers=${answersQuery}`;
   }
 
   return (
@@ -120,7 +114,7 @@ export function TestHistoryCard({ test, attempts }: TestHistoryCardProps) {
           </Link>
         </Button>
         <Button asChild className="w-full" variant="outline">
-          <Link href={`/quiz/${test.id}`}>
+          <Link href={`/mock-test/${test.id}`}>
             <Repeat className="mr-2 h-4 w-4" />
             Take Again
           </Link>

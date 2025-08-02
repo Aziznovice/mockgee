@@ -18,7 +18,7 @@ const fontPtSans = PT_Sans({
 
 export const metadata: Metadata = {
   title: "QuizWise - Sharpen Your Knowledge",
-  description: "An interactive quiz platform to test and improve your skills.",
+  description: "An interactive mock test platform to test and improve your skills.",
 };
 
 export default function RootLayout({
