@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { getTestAttemptsForUser, getTestById } from "@/lib/data";
 import type { TestAttempt } from "@/lib/types";
-import { User, TrendingUp, BarChart, Trophy, Bell, Newspaper } from "lucide-react";
+import { User, TrendingUp, BarChart, Trophy, Bell, Newspaper, Compass } from "lucide-react";
 import {
   ChartContainer,
   ChartTooltip,
@@ -23,6 +23,7 @@ import { Bar, BarChart as RechartsBarChart, CartesianGrid, XAxis, YAxis } from "
 import { Button } from "@/components/ui/button";
 import { TestHistoryCard } from "@/components/test-history-card";
 import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
 
 const chartConfig = {
   score: {
@@ -117,9 +118,17 @@ export default function ProfilePage() {
           </div>
 
           <div>
-             <div className="mb-4">
-                <h2 className="text-2xl font-bold font-headline">Recent Mock Tests</h2>
-                <p className="text-muted-foreground">Here are the results from your most recent mock tests.</p>
+             <div className="mb-4 flex justify-between items-center">
+                <div>
+                    <h2 className="text-2xl font-bold font-headline">Recent Mock Tests</h2>
+                    <p className="text-muted-foreground">Here are the results from your most recent mock tests.</p>
+                </div>
+                <Button asChild>
+                    <Link href="/">
+                        <Compass className="mr-2 h-4 w-4" />
+                        Browse All Tests
+                    </Link>
+                </Button>
              </div>
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {testHistories.map(({ test, attempts }) => (
