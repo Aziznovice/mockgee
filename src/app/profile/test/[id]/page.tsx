@@ -1,7 +1,7 @@
 
 "use client";
 
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import { getTestById, getTestAttemptsForUser } from "@/lib/data";
 import { Header } from "@/components/header";
 import {
@@ -31,6 +31,7 @@ import Link from "next/link";
 import { ArrowLeft, Repeat, Trophy, TrendingUp, TrendingDown, Star } from "lucide-react";
 import { RelativeTime } from "@/components/relative-time";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const chartConfig = {
   score: {
@@ -39,14 +40,17 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function TestStatsPage({ params }: { params: { id: string } }) {
-    const test = getTestById(params.id);
+export default function TestStatsPage() {
+    const params = useParams();
+    const id = typeof params.id === 'string' ? params.id : '';
+    const test = getTestById(id);
+
     if (!test) {
         notFound();
     }
 
     const allUserAttempts = getTestAttemptsForUser();
-    const testAttempts = allUserAttempts.filter(a => a.testId === params.id && a.status === 'completed');
+    const testAttempts = allUserAttempts.filter(a => a.testId === id && a.status === 'completed');
 
     const completedCount = testAttempts.length;
 
