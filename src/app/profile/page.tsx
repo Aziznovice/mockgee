@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Header } from "@/components/header";
@@ -21,7 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { getTestAttemptsForUser, getTestById } from "@/lib/data";
 import { TestAttempt } from "@/lib/types";
-import { User, TrendingUp, BarChart } from "lucide-react";
+import { User, TrendingUp, BarChart, Trophy } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import {
   ChartContainer,
@@ -30,6 +31,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart"
 import { Bar, BarChart as RechartsBarChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { Button } from "@/components/ui/button";
 
 const chartConfig = {
   score: {
@@ -44,6 +46,9 @@ export default function ProfilePage() {
     const averageScore = totalTests > 0 
         ? Math.round(testAttempts.reduce((acc, attempt) => acc + (attempt.score / attempt.totalQuestions) * 100, 0) / totalTests)
         : 0;
+    const highestScore = totalTests > 0
+        ? Math.max(...testAttempts.map(attempt => Math.round((attempt.score / attempt.totalQuestions) * 100)))
+        : 0;
 
     const chartData = testAttempts.slice(0, 5).reverse().map(attempt => {
         const test = getTestById(attempt.testId);
@@ -57,33 +62,50 @@ export default function ProfilePage() {
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <Header />
       <main className="flex-1 p-4 sm:p-6">
-        <div className="mx-auto max-w-4xl space-y-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center gap-4">
-              <Avatar className="h-20 w-20 border-2 border-primary">
-                <AvatarImage src="https://placehold.co/100x100" alt="User Avatar" />
-                <AvatarFallback>
-                  <User className="h-10 w-10" />
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <CardTitle className="text-3xl">Alex Doe</CardTitle>
-                <CardDescription>alex.doe@example.com</CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                        <BarChart className="h-5 w-5 text-muted-foreground"/>
-                        <span><span className="font-bold">{totalTests}</span> tests taken</span>
-                    </div>
-                     <div className="flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5 text-muted-foreground"/>
-                        <span>Average Score: <span className="font-bold">{averageScore}%</span></span>
-                    </div>
-                </div>
-            </CardContent>
-          </Card>
+        <div className="mx-auto max-w-5xl space-y-8">
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+             <div className="md:col-span-1">
+                <Card>
+                    <CardContent className="pt-6 flex flex-col items-center text-center">
+                         <Avatar className="h-24 w-24 border-2 border-primary mb-4">
+                            <AvatarImage src="https://placehold.co/100x100" alt="User Avatar" />
+                            <AvatarFallback>
+                            <User className="h-12 w-12" />
+                            </AvatarFallback>
+                        </Avatar>
+                        <h2 className="text-2xl font-bold font-headline">Alex Doe</h2>
+                        <p className="text-sm text-muted-foreground">alex.doe@example.com</p>
+                        <Button variant="outline" size="sm" className="mt-4">Edit Profile</Button>
+                    </CardContent>
+                </Card>
+             </div>
+             <div className="md:col-span-2">
+                 <Card>
+                     <CardHeader>
+                        <CardTitle>Statistics</CardTitle>
+                        <CardDescription>Your performance at a glance.</CardDescription>
+                     </CardHeader>
+                     <CardContent className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="p-4 rounded-lg bg-background flex flex-col items-center justify-center">
+                            <BarChart className="h-8 w-8 text-primary mb-2"/>
+                            <p className="text-3xl font-bold">{totalTests}</p>
+                            <p className="text-sm text-muted-foreground">Tests Taken</p>
+                        </div>
+                        <div className="p-4 rounded-lg bg-background flex flex-col items-center justify-center">
+                            <TrendingUp className="h-8 w-8 text-primary mb-2"/>
+                            <p className="text-3xl font-bold">{averageScore}%</p>
+                            <p className="text-sm text-muted-foreground">Average Score</p>
+                        </div>
+                        <div className="p-4 rounded-lg bg-background flex flex-col items-center justify-center">
+                            <Trophy className="h-8 w-8 text-primary mb-2"/>
+                            <p className="text-3xl font-bold">{highestScore}%</p>
+                            <p className="text-sm text-muted-foreground">Highest Score</p>
+                        </div>
+                     </CardContent>
+                 </Card>
+             </div>
+          </div>
 
           <Card>
              <CardHeader>
@@ -91,8 +113,8 @@ export default function ProfilePage() {
                 <CardDescription>Your scores on the last 5 mock tests.</CardDescription>
              </CardHeader>
              <CardContent>
-                <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-                    <RechartsBarChart accessibilityLayer data={chartData}>
+                <ChartContainer config={chartConfig} className="min-h-[250px] w-full">
+                    <RechartsBarChart accessibilityLayer data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                         <CartesianGrid vertical={false}/>
                          <XAxis
                             dataKey="name"
@@ -100,9 +122,9 @@ export default function ProfilePage() {
                             tickMargin={10}
                             axisLine={false}
                             />
-                        <YAxis domain={[0, 100]} unit="%"/>
-                        <ChartTooltip content={<ChartTooltipContent />}/>
-                        <Bar dataKey="score" fill="var(--color-score)" radius={4}/>
+                        <YAxis domain={[0, 100]} unit="%" tickMargin={10} axisLine={false} tickLine={false}/>
+                        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+                        <Bar dataKey="score" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]}/>
                     </RechartsBarChart>
                 </ChartContainer>
              </CardContent>
@@ -122,7 +144,7 @@ export default function ProfilePage() {
                     <TableHead>Mock Test</TableHead>
                     <TableHead>Score</TableHead>
                     <TableHead>Progress</TableHead>
-                    <TableHead>Date</TableHead>
+                    <TableHead className="text-right">Date</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -137,15 +159,15 @@ export default function ProfilePage() {
                           {test?.title || "Unknown Test"}
                         </TableCell>
                         <TableCell>
-                           <Badge variant={percentage > 70 ? "default" : "secondary"}>{percentage}%</Badge>
+                           <Badge variant={percentage > 70 ? "default" : "secondary"} className="text-base">{percentage}%</Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Progress value={percentage} className="w-24" />
-                            <span>{attempt.score}/{attempt.totalQuestions}</span>
+                            <Progress value={percentage} className="w-24 h-2" />
+                            <span className="text-muted-foreground">{attempt.score}/{attempt.totalQuestions}</span>
                           </div>
                         </TableCell>
-                        <TableCell title={format(new Date(attempt.date), "PPP p")}>
+                        <TableCell className="text-right text-muted-foreground" title={format(new Date(attempt.date), "PPP p")}>
                           {formatDistanceToNow(new Date(attempt.date), { addSuffix: true })}
                         </TableCell>
                       </TableRow>
@@ -160,3 +182,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
