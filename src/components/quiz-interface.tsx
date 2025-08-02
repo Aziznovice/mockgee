@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -12,10 +13,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, ArrowRight, CheckSquare } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface QuizInterfaceProps {
   test: Test;
@@ -29,7 +30,6 @@ export function QuizInterface({ test, questions }: QuizInterfaceProps) {
   const [showFeedback, setShowFeedback] = useState(false);
 
   const currentQuestion = questions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
   const handleAnswerChange = (questionId: string, choiceId: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: choiceId }));
@@ -60,7 +60,17 @@ export function QuizInterface({ test, questions }: QuizInterfaceProps) {
       <Card className="w-full max-w-2xl shadow-2xl rounded-xl">
         <CardHeader className="pb-2">
           <CardDescription className="text-center">{test.title}</CardDescription>
-          <Progress value={progress} className="mt-2" />
+          <div className="flex justify-center items-center gap-2 my-4">
+            {questions.map((_, index) => (
+              <div
+                key={index}
+                className={cn(
+                  "h-2 w-2 rounded-full transition-all",
+                  index === currentQuestionIndex ? "bg-primary scale-125" : "bg-muted"
+                )}
+              />
+            ))}
+          </div>
           <p className="text-center text-sm text-muted-foreground mt-2">
             Question {currentQuestionIndex + 1} of {questions.length}
           </p>
