@@ -39,6 +39,13 @@ export function TestHistoryCard({ test, attempts }: TestHistoryCardProps) {
       return `/mock-test/${test.id}?answers=${answersQuery}`;
   }
 
+  const getImprovementIcon = () => {
+    if (improvement === null) return null;
+    if (improvement > 0) return <TrendingUp className="h-4 w-4 text-green-500" />;
+    if (improvement < 0) return <TrendingDown className="h-4 w-4 text-red-500" />;
+    return <Minus className="h-4 w-4 text-muted-foreground" />;
+  }
+
   return (
     <Card className="flex flex-col">
       <CardHeader>
