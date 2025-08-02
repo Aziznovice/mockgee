@@ -1,4 +1,5 @@
 
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -38,11 +39,13 @@ export default function TestsPage() {
                 Manage the tests available for users to take.
               </CardDescription>
             </div>
-            <Button size="sm" className="h-8 gap-1">
-              <PlusCircle className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Add Test
-              </span>
+            <Button size="sm" className="h-8 gap-1" asChild>
+              <Link href="/admin/tests/new">
+                <PlusCircle className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Add Test
+                </span>
+              </Link>
             </Button>
           </div>
         </CardHeader>
@@ -74,7 +77,9 @@ export default function TestsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Link href={`/admin/tests/edit/${test.id}`}>Edit</Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem>Delete</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

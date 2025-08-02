@@ -17,13 +17,24 @@ export interface Tag {
   name: string;
 }
 
+export interface TestSubject {
+  id: string;
+  name: string;
+  tags: string[];
+  questionCount: number;
+}
+
 export interface Test {
   id: string;
   title: string;
   description: string;
-  // This will now represent all possible questions for this topic
-  allQuestionIds: string[]; 
   imageUrl: string;
+  allQuestionIds: string[]; 
+  
+  // New structure for creating tests
+  subjects?: TestSubject[];
+  tags?: string[];
+  questionCount?: number;
 }
 
 export type UserAnswers = Record<string, string>;
@@ -46,4 +57,5 @@ export interface TestAttempt {
     totalQuestions: number;
     status: 'completed' | 'in-progress';
     answers?: UserAnswers;
+    duration?: string;
 }
