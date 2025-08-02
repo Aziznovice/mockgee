@@ -2,7 +2,7 @@
 "use client";
 
 import { notFound, useParams } from "next/navigation";
-import { getTestById, getTestAttemptsForUser } from "@/lib/data";
+import { getTestById, getTestAttemptsForUser, getSessionById, questions as allQuestions } from "@/lib/data";
 import { Header } from "@/components/header";
 import {
   Card,
@@ -29,11 +29,13 @@ import {
 import { Line, LineChart as RechartsLineChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft, Repeat, Trophy, TrendingUp, TrendingDown, Star, Clock } from "lucide-react";
+import { ArrowLeft, Repeat, Trophy, TrendingUp, TrendingDown, Star, Clock, Info } from "lucide-react";
 import { RelativeTime } from "@/components/relative-time";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { formatDistanceStrict } from "date-fns";
+import { Progress } from "@/components/ui/progress";
+import type { Question } from "@/lib/types";
 
 const chartConfig = {
   score: {
@@ -57,7 +59,6 @@ export default function TestStatsPage() {
         return session?.testId === id && a.status === 'completed';
     });
     
-
     const completedCount = testAttempts.length;
 
     const scores = testAttempts.map(a => Math.round((a.score / a.totalQuestions) * 100));
@@ -83,6 +84,32 @@ export default function TestStatsPage() {
         if (!start || !end) return null;
         return formatDistanceStrict(new Date(end), new Date(start));
     }
+
+    const latestAttempt = testAttempts[0];
+
+    const subjectPerformance = test.subjects?.map(subject => {
+        if (!latestAttempt?.answers) return { name: subject.name, score: 0, questionCount: 0 };
+        
+        const subjectQuestionIds = allQuestions
+            .filter(q => subject.tags.every(tag => q.tags.includes(tag)))
+            .map(q => q.id);
+
+        let correctAnswers = 0;
+        const questionsInAttempt = Object.keys(latestAttempt.answers).filter(qId => subjectQuestionIds.includes(qId));
+        
+        questionsInAttempt.forEach(qId => {
+            const question = allQuestions.find(q => q.id === qId);
+            if (question && latestAttempt.answers![qId] === question.correctChoiceId) {
+                correctAnswers++;
+            }
+        });
+
+        return {
+            name: subject.name,
+            score: correctAnswers,
+            questionCount: questionsInAttempt.length
+        };
+    }).filter(s => s.questionCount > 0);
 
 
   return (
@@ -145,6 +172,38 @@ export default function TestStatsPage() {
               </CardContent>
             </Card>
           </div>
+
+            {test.subjects && test.subjects.length > 0 && (
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Performance by Subject</CardTitle>
+                        <CardDescription>
+                           Breakdown of your score in the most recent attempt.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {subjectPerformance && subjectPerformance.length > 0 ? (
+                             subjectPerformance.map(subject => {
+                                const percentage = subject.questionCount > 0 ? Math.round((subject.score / subject.questionCount) * 100) : 0;
+                                return (
+                                    <div key={subject.name}>
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="text-sm font-medium">{subject.name}</span>
+                                            <span className="text-sm text-muted-foreground">{subject.score}/{subject.questionCount} ({percentage}%)</span>
+                                        </div>
+                                        <Progress value={percentage} />
+                                    </div>
+                                )
+                            })
+                        ) : (
+                             <div className="flex items-center gap-3 text-sm text-muted-foreground p-4 bg-muted rounded-md">
+                                <Info className="h-5 w-5"/>
+                                <span>No subjects were found in your last attempt. Take the test to see your subject breakdown.</span>
+                             </div>
+                        )}
+                    </CardContent>
+                </Card>
+            )}
 
           <Card>
              <CardHeader>
