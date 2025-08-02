@@ -302,13 +302,3 @@ export default function TestStatsPage() {
     </div>
   );
 }
-
-// Helper function to find a session by ID
-function getSessionById(sessionId: string) {
-    // In a real app, this would fetch from your data source.
-    // For now, we'll assume testSessions is available in this scope
-    // You might need to import it if it's in another file.
-    // import { testSessions } from "@/lib/data";
-    // This is a placeholder. You need to get the sessions data here.
-    return null;
-}
