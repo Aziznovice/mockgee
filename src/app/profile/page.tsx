@@ -10,18 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { getTestAttemptsForUser, getTestById } from "@/lib/data";
-import { TestAttempt } from "@/lib/types";
+import { getTestAttemptsForUser } from "@/lib/data";
 import { User, TrendingUp, BarChart, Trophy } from "lucide-react";
 import {
   ChartContainer,
@@ -31,7 +20,7 @@ import {
 } from "@/components/ui/chart"
 import { Bar, BarChart as RechartsBarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { Button } from "@/components/ui/button";
-import { RelativeTime } from "@/components/relative-time";
+import { TestAttemptCard } from "@/components/test-attempt-card";
 
 const chartConfig = {
   score: {
@@ -130,53 +119,17 @@ export default function ProfilePage() {
              </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Mock Tests</CardTitle>
-              <CardDescription>
-                Here are the results from your most recent mock tests.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Mock Test</TableHead>
-                    <TableHead>Score</TableHead>
-                    <TableHead>Progress</TableHead>
-                    <TableHead className="text-right">Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {testAttempts.map((attempt: TestAttempt) => {
-                    const test = getTestById(attempt.testId);
-                    const percentage = Math.round(
-                      (attempt.score / attempt.totalQuestions) * 100
-                    );
-                    return (
-                      <TableRow key={attempt.id}>
-                        <TableCell className="font-medium">
-                          {test?.title || "Unknown Test"}
-                        </TableCell>
-                        <TableCell>
-                           <Badge variant={percentage > 70 ? "default" : "secondary"} className="text-base">{percentage}%</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Progress value={percentage} className="w-24 h-2" />
-                            <span className="text-muted-foreground">{attempt.score}/{attempt.totalQuestions}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right text-muted-foreground">
-                          <RelativeTime date={attempt.date} />
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+          <div>
+             <div className="mb-4">
+                <h2 className="text-2xl font-bold font-headline">Recent Mock Tests</h2>
+                <p className="text-muted-foreground">Here are the results from your most recent mock tests.</p>
+             </div>
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {testAttempts.map((attempt) => (
+                    <TestAttemptCard key={attempt.id} attempt={attempt}/>
+                ))}
+             </div>
+          </div>
         </div>
       </main>
     </div>
