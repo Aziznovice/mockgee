@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { getTestAttemptsForUser, getTestById } from "@/lib/data";
 import type { TestAttempt } from "@/lib/types";
-import { User, TrendingUp, BarChart, Trophy } from "lucide-react";
+import { User, TrendingUp, BarChart, Trophy, Bell, Newspaper } from "lucide-react";
 import {
   ChartContainer,
   ChartTooltip,
@@ -22,6 +22,7 @@ import {
 import { Bar, BarChart as RechartsBarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { Button } from "@/components/ui/button";
 import { TestHistoryCard } from "@/components/test-history-card";
+import { Separator } from "@/components/ui/separator";
 
 const chartConfig = {
   score: {
@@ -126,6 +127,35 @@ export default function ProfilePage() {
                 ))}
              </div>
           </div>
+          
+          <Card>
+              <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Newspaper className="h-6 w-6" />
+                    News & Announcements
+                  </CardTitle>
+                  <CardDescription>Stay up to date with the latest platform news.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                 <div className="flex items-start gap-4">
+                    <Bell className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                    <div>
+                        <h3 className="font-semibold">New "React Hooks" Quiz Available!</h3>
+                        <p className="text-sm text-muted-foreground">We've just launched a new quiz to test your knowledge of React Hooks. Give it a try now!</p>
+                        <p className="text-xs text-muted-foreground mt-1">July 22, 2024</p>
+                    </div>
+                 </div>
+                 <Separator />
+                 <div className="flex items-start gap-4">
+                    <Bell className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                    <div>
+                        <h3 className="font-semibold">Scheduled Maintenance</h3>
+                        <p className="text-sm text-muted-foreground">The platform will be down for scheduled maintenance on July 25th from 2:00 AM to 3:00 AM UTC.</p>
+                        <p className="text-xs text-muted-foreground mt-1">July 20, 2024</p>
+                    </div>
+                 </div>
+              </CardContent>
+          </Card>
 
           <Card>
              <CardHeader>
