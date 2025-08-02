@@ -17,7 +17,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen w-full flex-col">
       <Header />
-      <main className="flex-1 bg-muted/40">
+      <main className="flex-1 bg-muted">
         <div className="container mx-auto px-4 py-12 md:px-6">
           <section className="text-center">
             <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl">

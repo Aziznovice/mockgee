@@ -88,7 +88,7 @@ export function QuizInterface({ test, questions }: QuizInterfaceProps) {
                   key={choice.id}
                   htmlFor={choice.id}
                   className={
-                    "flex items-center space-x-4 rounded-lg border p-4 transition-all hover:bg-secondary has-[:checked]:bg-secondary has-[:checked]:shadow-inner"
+                    "flex items-center space-x-4 rounded-lg border p-4 transition-all hover:bg-secondary has-[:checked]:bg-accent has-[:checked]:text-accent-foreground has-[:checked]:shadow-inner"
                   }
                 >
                   <RadioGroupItem value={choice.id} id={choice.id} />
