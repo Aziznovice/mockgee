@@ -23,7 +23,6 @@ import { Badge } from "@/components/ui/badge";
 import { getTestAttemptsForUser, getTestById } from "@/lib/data";
 import { TestAttempt } from "@/lib/types";
 import { User, TrendingUp, BarChart, Trophy } from "lucide-react";
-import { format } from "date-fns";
 import {
   ChartContainer,
   ChartTooltip,
@@ -168,7 +167,7 @@ export default function ProfilePage() {
                             <span className="text-muted-foreground">{attempt.score}/{attempt.totalQuestions}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right text-muted-foreground" title={format(new Date(attempt.date), "PPP p")}>
+                        <TableCell className="text-right text-muted-foreground">
                           <RelativeTime date={attempt.date} />
                         </TableCell>
                       </TableRow>

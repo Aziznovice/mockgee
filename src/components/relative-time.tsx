@@ -1,8 +1,8 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
-import { formatDistanceToNow } from "date-fns";
+import { useState, useEffect, useRef } from "react";
+import { formatDistanceToNow, format } from "date-fns";
 
 interface RelativeTimeProps {
   date: string | Date;
@@ -10,14 +10,21 @@ interface RelativeTimeProps {
 
 export function RelativeTime({ date }: RelativeTimeProps) {
   const [relativeTime, setRelativeTime] = useState("");
+  const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    setRelativeTime(formatDistanceToNow(new Date(date), { addSuffix: true }));
+    const newDate = new Date(date);
+    setRelativeTime(formatDistanceToNow(newDate, { addSuffix: true }));
+    
+    if (ref.current?.parentElement) {
+        ref.current.parentElement.title = format(newDate, "PPP p");
+    }
+
   }, [date]);
 
   if (!relativeTime) {
-    return null;
+    return <span ref={ref}></span>;
   }
 
-  return <>{relativeTime}</>;
+  return <span ref={ref}>{relativeTime}</span>;
 }
