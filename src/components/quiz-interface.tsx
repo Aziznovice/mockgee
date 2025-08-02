@@ -21,14 +21,15 @@ import { cn } from "@/lib/utils";
 interface QuizInterfaceProps {
   test: Test;
   questions: Question[];
+  initialAnswers?: UserAnswers;
 }
 
 type ViewType = "card" | "form";
 
-export function QuizInterface({ test, questions }: QuizInterfaceProps) {
+export function QuizInterface({ test, questions, initialAnswers = {} }: QuizInterfaceProps) {
   const router = useRouter();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<UserAnswers>({});
+  const [answers, setAnswers] = useState<UserAnswers>(initialAnswers);
   const [view, setView] = useState<ViewType>("card");
 
   const currentQuestion = questions[currentQuestionIndex];

@@ -33,4 +33,6 @@ export interface TestAttempt {
     date: string;
     score: number;
     totalQuestions: number;
+    status: 'completed' | 'in-progress';
+    answers?: UserAnswers;
 }

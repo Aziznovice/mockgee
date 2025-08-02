@@ -10,8 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getTestAttemptsForUser, getTestById, tests } from "@/lib/data";
-import type { TestAttempt, Test } from "@/lib/types";
+import { getTestAttemptsForUser, getTestById } from "@/lib/data";
+import type { TestAttempt } from "@/lib/types";
 import { User, TrendingUp, BarChart, Trophy } from "lucide-react";
 import {
   ChartContainer,
@@ -32,12 +32,14 @@ const chartConfig = {
 
 export default function ProfilePage() {
     const allAttempts = getTestAttemptsForUser();
-    const totalTests = allAttempts.length;
+    const completedAttempts = allAttempts.filter(a => a.status === 'completed');
+    const totalTests = completedAttempts.length;
+
     const averageScore = totalTests > 0 
-        ? Math.round(allAttempts.reduce((acc, attempt) => acc + (attempt.score / attempt.totalQuestions) * 100, 0) / totalTests)
+        ? Math.round(completedAttempts.reduce((acc, attempt) => acc + (attempt.score / attempt.totalQuestions) * 100, 0) / totalTests)
         : 0;
     const highestScore = totalTests > 0
-        ? Math.max(...allAttempts.map(attempt => Math.round((attempt.score / attempt.totalQuestions) * 100)))
+        ? Math.max(...completedAttempts.map(attempt => Math.round((attempt.score / attempt.totalQuestions) * 100)))
         : 0;
     
     const attemptsByTest = allAttempts.reduce((acc, attempt) => {
@@ -56,7 +58,7 @@ export default function ProfilePage() {
         };
     }).filter(history => history.test);
 
-    const chartData = allAttempts.slice(0, 5).reverse().map(attempt => {
+    const chartData = completedAttempts.slice(0, 5).reverse().map(attempt => {
         const test = getTestById(attempt.testId);
         return {
             name: test?.title.slice(0,15) + "..." || "Test",
