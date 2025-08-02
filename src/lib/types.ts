@@ -26,3 +26,11 @@ export interface Test {
 }
 
 export type UserAnswers = Record<string, string>;
+
+export interface TestAttempt {
+    id: string;
+    testId: string;
+    date: string;
+    score: number;
+    totalQuestions: number;
+}

@@ -1,4 +1,4 @@
-import type { Tag, Question, Test } from './types';
+import type { Tag, Question, Test, TestAttempt } from './types';
 
 export const tags: Tag[] = [
   { id: 't1', name: 'JavaScript' },
@@ -92,9 +92,20 @@ export const tests: Test[] = [
   },
 ];
 
+export const testAttempts: TestAttempt[] = [
+    { id: 'att1', testId: '1', date: '2024-07-20T10:00:00Z', score: 3, totalQuestions: 4 },
+    { id: 'att2', testId: '2', date: '2024-07-19T14:30:00Z', score: 1, totalQuestions: 1 },
+    { id: 'att3', testId: '1', date: '2024-07-18T09:00:00Z', score: 2, totalQuestions: 4 },
+    { id: 'att4', testId: '1', date: '2024-07-21T11:00:00Z', score: 4, totalQuestions: 4 },
+];
+
+
 export const getTestById = (id: string) => tests.find(t => t.id === id);
 export const getQuestionsForTest = (testId: string) => {
     const test = getTestById(testId);
     if (!test) return [];
     return questions.filter(q => test.questionIds.includes(q.id));
 }
+export const getTestAttemptsForUser = () => {
+    return testAttempts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+};
