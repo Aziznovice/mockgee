@@ -71,7 +71,7 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
 
   const handleBack = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev + 1);
+      setCurrentQuestionIndex((prev) => prev - 1);
     }
   };
 
@@ -163,9 +163,9 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
             </div>
 
             {view === 'card' ? (
-                <div className={cn("grid grid-cols-1 gap-8", currentGroup && "lg:grid-cols-2 lg:gap-12")}>
+                <div className={cn("grid grid-cols-1 gap-8", currentGroup ? "lg:grid-cols-2 lg:gap-12" : "")}>
                     {currentGroup && (
-                        <div className="lg:order-first">
+                        <div>
                              <Card className="shadow-xl rounded-xl sticky top-24">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
@@ -211,7 +211,7 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
                              {currentQuestion.imageUrl && (
                                 <div className="pt-4 flex justify-center">
                                     <Image src={currentQuestion.imageUrl} alt="Question reference" width={300} height={200} className="rounded-md object-cover" />
-                                d</div>
+                                </div>
                             )}
                         </CardHeader>
                         <CardContent>
