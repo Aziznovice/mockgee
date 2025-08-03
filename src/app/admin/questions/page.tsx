@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -63,11 +64,13 @@ export default function QuestionsPage() {
                         Bulk Upload
                     </span>
                 </Button>
-                <Button size="sm" className="h-8 gap-1">
-                    <PlusCircle className="h-3.5 w-3.5" />
-                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                        Add Question
-                    </span>
+                <Button size="sm" className="h-8 gap-1" asChild>
+                    <Link href="/admin/questions/new">
+                        <PlusCircle className="h-3.5 w-3.5" />
+                        <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                            Add Question
+                        </span>
+                    </Link>
                 </Button>
             </div>
         </div>

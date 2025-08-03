@@ -10,6 +10,7 @@ export interface Question {
   correctChoiceId: string;
   explanation: string;
   tags: string[];
+  imageUrl?: string;
 }
 
 export interface Tag {
