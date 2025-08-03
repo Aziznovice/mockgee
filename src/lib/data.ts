@@ -120,23 +120,49 @@ export const tests: Test[] = [
     description: 'A quick mock test to test your foundational knowledge of web development technologies.',
     allQuestionIds: ['q1', 'q2', 'q3', 'q5'],
     imageUrl: 'https://placehold.co/600x400',
+    tags: ['t1', 't2', 't3'],
+    questionCount: 4,
   },
   {
     id: '2',
     title: 'General Knowledge Challenge',
     description: 'How well do you know the world? Test your general knowledge with these questions.',
-    allQuestionIds: ['q4', 'q6', 'q7'],
+    allQuestionIds: ['q4'],
     imageUrl: 'https://placehold.co/600x400',
+    tags: ['t4'],
+    questionCount: 1,
   },
+  {
+    id: '3',
+    title: 'Reading & Comprehension Practice',
+    description: 'A test focused on reading comprehension and critical thinking, with grouped questions.',
+    imageUrl: 'https://placehold.co/600x400',
+    allQuestionIds: ['q4', 'q6', 'q7'], // all questions that will be available.
+    subjects: [
+        {
+            id: 's1',
+            name: 'General Knowledge',
+            tags: ['t4'],
+            questionCount: 1,
+        },
+        {
+            id: 's2',
+            name: 'Reading Comprehension',
+            tags: ['t5'],
+            questionCount: 2, // This will pull the 'g1' group which has 2 questions
+        }
+    ]
+  }
 ];
 
 export const testSessions: TestSession[] = [
     // Two different sessions for the same test topic
     { id: 's1', testId: '1', questionIds: ['q1', 'q2', 'q3', 'q5'], startedDate: '2024-07-18T09:00:00Z' },
     { id: 's2', testId: '1', questionIds: ['q5', 'q1', 'q2', 'q3'], startedDate: '2024-07-21T11:00:00Z' },
-    { id: 's3', testId: '2', questionIds: ['q4', 'q6', 'q7'], startedDate: '2024-07-19T14:30:00Z' },
+    { id: 's3', testId: '2', questionIds: ['q4'], startedDate: '2024-07-19T14:30:00Z' },
     // A session that is still in progress
     { id: 's4', testId: '2', questionIds: ['q4'], startedDate: '2024-07-22T11:00:00Z' },
+    { id: 's5', testId: '3', questionIds: ['q4', 'q6', 'q7'], startedDate: '2024-07-23T10:00:00Z' }
 ];
 
 export const testAttempts: TestAttempt[] = [
