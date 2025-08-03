@@ -1,3 +1,4 @@
+
 import type { Tag, Question, Test, TestAttempt, TestSession, QuestionGroup } from './types';
 
 export const tags: Tag[] = [
@@ -11,7 +12,7 @@ export const tags: Tag[] = [
 export const questionGroups: QuestionGroup[] = [
     {
         id: 'g1',
-        referenceText: "The following passage is about the history of computing. Read it carefully and answer the questions that follow. The first mechanical computer, created by Charles Babbage in 1822, was called the Difference Engine. It was designed to compute polynomial functions. Ada Lovelace, a mathematician, is often regarded as the first computer programmer for her work on Babbage's analytical engine.",
+        referenceText: "The following passage is about the history of computing. Read it carefully and answer the questions that follow.\n\nThe first mechanical computer, created by Charles Babbage in 1822, was called the Difference Engine. It was designed to compute polynomial functions. Ada Lovelace, a mathematician, is often regarded as the first computer programmer for her work on Babbage's analytical engine. Her notes on the engine include what is recognised as the first algorithm intended to be carried out by a machine. Because of this, she is often considered the first computer programmer. The Analytical Engine was a more general-purpose computer. It could be programmed using punched cards. It was intended to be able to perform any calculation that could be imagined.",
         questionIds: ['q6', 'q7'],
     }
 ]
@@ -161,10 +162,42 @@ export const getQuestionsForSession = (sessionId: string) => {
     return questions.filter(q => session.questionIds.includes(q.id));
 }
 
+// Get all question groups that have questions in the current session
+export const getQuestionGroupsForSession = (sessionId: string): QuestionGroup[] => {
+    const session = getSessionById(sessionId);
+    if (!session) return [];
+  
+    const groupIdsInSession = new Set<string>();
+    for (const q of questions) {
+      if (session.questionIds.includes(q.id) && q.groupId) {
+        groupIdsInSession.add(q.groupId);
+      }
+    }
+  
+    return questionGroups.filter(g => groupIdsInSession.has(g.id));
+  };
+
 // In a real app, you'd generate a new session. For now, we'll just find the first one.
 export const getOrCreateTestSession = (testId: string): TestSession | undefined => {
     // This logic is for demonstration. A real implementation would create a new session.
-    return testSessions.find(s => s.testId === testId);
+    const existingSession = testSessions.find(s => s.testId === testId);
+    if (existingSession) return existingSession;
+
+    // A more realistic implementation would be to create a new session:
+    // const newSessionId = `s${testSessions.length + 1}`;
+    // const test = getTestById(testId);
+    // if (!test) return undefined;
+    // const newSession: TestSession = {
+    //   id: newSessionId,
+    //   testId: testId,
+    //   questionIds: test.allQuestionIds, // Or some randomized subset
+    //   startedDate: new Date().toISOString()
+    // };
+    // testSessions.push(newSession);
+    // return newSession;
+
+    // For now, we return the first one that matches the testId
+     return testSessions.find(s => s.testId === testId);
 }
 
 
@@ -186,3 +219,5 @@ export const getSessionsForUser = () => {
 export const getAttemptsForSession = (sessionId: string) => {
     return testAttempts.filter(a => a.sessionId === sessionId).sort((a, b) => new Date(b.startedDate).getTime() - new Date(a.startedDate).getTime());
 }
+
+  

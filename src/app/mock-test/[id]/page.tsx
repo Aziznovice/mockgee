@@ -1,5 +1,6 @@
+
 import { notFound } from "next/navigation";
-import { getTestById, getQuestionsForSession, getOrCreateTestSession } from "@/lib/data";
+import { getTestById, getQuestionsForSession, getOrCreateTestSession, getQuestionGroupsForSession } from "@/lib/data";
 import { Header } from "@/components/header";
 import { QuizInterface } from "@/components/quiz-interface";
 import type { UserAnswers } from "@/lib/types";
@@ -21,6 +22,7 @@ export default function MockTestPage({ params, searchParams }: { params: { id: s
   }
 
   const questions = getQuestionsForSession(sessionId);
+  const questionGroups = getQuestionGroupsForSession(sessionId);
   let initialAnswers: UserAnswers = {};
 
   try {
@@ -35,9 +37,17 @@ export default function MockTestPage({ params, searchParams }: { params: { id: s
   return (
     <div className="flex min-h-screen w-full flex-col">
       <Header />
-      <main className="flex-1 pt-8 bg-muted">
-        <QuizInterface test={test} questions={questions} initialAnswers={initialAnswers} sessionId={sessionId} />
+      <main className="flex-1 pt-8 bg-muted/40">
+        <QuizInterface 
+            test={test} 
+            questions={questions} 
+            questionGroups={questionGroups} 
+            initialAnswers={initialAnswers} 
+            sessionId={sessionId} 
+        />
       </main>
     </div>
   );
 }
+
+    
