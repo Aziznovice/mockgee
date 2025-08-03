@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { Question, Test, UserAnswers, QuestionGroup } from "@/lib/types";
 import {
@@ -19,6 +19,7 @@ import { ArrowLeft, ArrowRight, CheckSquare, LayoutGrid, Rows3, BoxSelect } from
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { ScrollArea } from "./ui/scroll-area";
+import { Separator } from "./ui/separator";
 
 interface QuizInterfaceProps {
   test: Test;
@@ -28,22 +29,31 @@ interface QuizInterfaceProps {
   initialAnswers?: UserAnswers;
 }
 
-type QuizItem = (Question & { itemType: 'question' }) | (QuestionGroup & { itemType: 'group' });
+type QuizItem = { type: 'question', data: Question } | { type: 'group', data: QuestionGroup, questions: Question[] };
 
 export function QuizInterface({ test, questions, questionGroups, sessionId, initialAnswers = {} }: QuizInterfaceProps) {
   const router = useRouter();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<UserAnswers>(initialAnswers);
-  const [view, setView] = useState<ViewType>("card");
+  const [view, setView] = useState<"card" | "form">("card");
 
-  const allQuestions: Question[] = useMemo(() => {
-    const groupQuestions = questionGroups.flatMap(g => {
-        const questionsForGroup = questions.filter(q => q.groupId === g.id);
-        return questionsForGroup.map(q => ({...q, groupRef: g}))
-    });
+  const allQuestions = useMemo(() => {
+    return questions.sort((a,b) => (a.groupId || '').localeCompare(b.groupId || ''));
+  }, [questions]);
+  
+  const formItems: QuizItem[] = useMemo(() => {
+    const items: QuizItem[] = [];
     const standaloneQuestions = questions.filter(q => !q.groupId);
-    // This is a simplified sort, a real app might need a more robust ordering mechanism
-    return [...standaloneQuestions, ...groupQuestions];
+    questionGroups.forEach(g => {
+        const questionsForGroup = questions.filter(q => q.groupId === g.id);
+        if(questionsForGroup.length > 0){
+            items.push({ type: 'group', data: g, questions: questionsForGroup });
+        }
+    });
+    standaloneQuestions.forEach(q => {
+        items.push({ type: 'question', data: q });
+    });
+    return items;
   }, [questions, questionGroups]);
 
   const currentQuestion = allQuestions[currentQuestionIndex];
@@ -70,11 +80,11 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
     router.push(`/mock-test/${test.id}/results?session=${sessionId}&answers=${answersQuery}`);
   };
 
-  const renderQuestion = (question: Question, index?: number) => (
+  const renderSingleQuestionForm = (question: Question, index?: number) => (
     <Card key={question.id} className="shadow-lg rounded-xl">
         <CardHeader>
             <CardTitle className="text-lg">
-                {index !== undefined ? `${index + 1}. ` : ''}
+                {index !== undefined ? `Question ${index + 1}: ` : ''}
                 {question.text}
             </CardTitle>
              {question.imageUrl && (
@@ -106,8 +116,7 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
     </Card>
   )
 
-  const renderGroup = (group: QuestionGroup) => {
-    const groupQuestions = questions.filter(q => q.groupId === group.id);
+  const renderGroupForm = (group: QuestionGroup, groupQuestions: Question[]) => {
     return (
         <Card key={group.id} className="shadow-lg rounded-xl overflow-hidden">
             <CardHeader className="bg-muted">
@@ -124,23 +133,21 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
                     </div>
                 )}
                 <div className="p-4 lg:p-6 space-y-6">
-                 {groupQuestions.map((q, idx) => renderQuestion(q, idx))}
+                 {groupQuestions.map((q, idx) => renderSingleQuestionForm(q, idx))}
                 </div>
             </CardContent>
         </Card>
     );
   }
 
-  type ViewType = "card" | "form";
-
   return (
     <div className="container mx-auto px-4 py-8">
-        <div className="w-full max-w-5xl mx-auto">
+        <div className="w-full max-w-7xl mx-auto">
             <div className="flex items-center justify-between mb-4">
                 <div>
                     <h1 className="font-semibold text-lg md:text-2xl">{test.title}</h1>
                     <p className="text-sm text-muted-foreground">
-                        Answer the questions below.
+                        Question {currentQuestionIndex + 1} of {allQuestions.length}
                     </p>
                 </div>
                 <div className="flex items-center gap-1 rounded-md bg-muted p-1">
@@ -185,20 +192,21 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
                         <Card className="w-full shadow-2xl rounded-xl">
                         <CardHeader className="pb-2">
                             <div className="flex justify-center items-center gap-2 my-4">
-                                {allQuestions.map((_, index) => (
-                                <div
-                                    key={index}
-                                    className={cn(
-                                    "h-2 w-2 rounded-full transition-all cursor-pointer",
-                                    index === currentQuestionIndex ? "bg-accent scale-125" : "bg-muted hover:bg-muted-foreground/50"
-                                    )}
-                                    onClick={() => setCurrentQuestionIndex(index)}
-                                />
-                                ))}
+                                {allQuestions.map((q, index) => {
+                                    const isAnswered = answers[q.id];
+                                    return (
+                                    <div
+                                        key={index}
+                                        className={cn(
+                                        "h-2 w-full rounded-full transition-all cursor-pointer flex-1",
+                                        index === currentQuestionIndex ? "bg-primary" : (isAnswered ? "bg-primary/30" : "bg-muted hover:bg-muted-foreground/50")
+                                        )}
+                                        style={{maxWidth: `calc(${100/allQuestions.length}% - 4px)`}}
+                                        onClick={() => setCurrentQuestionIndex(index)}
+                                    />
+                                )})}
                             </div>
-                            <p className="text-center text-sm text-muted-foreground mt-2">
-                                Question {currentQuestionIndex + 1} of {allQuestions.length}
-                            </p>
+                            <Separator className="my-4"/>
                             <CardTitle className="text-2xl pt-4 text-center">{currentQuestion.text}</CardTitle>
                              {currentQuestion.imageUrl && (
                                 <div className="pt-4 flex justify-center">
@@ -218,7 +226,7 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
                                     key={choice.id}
                                     htmlFor={`${currentQuestion.id}-${choice.id}`}
                                     className={
-                                    "flex items-center space-x-4 rounded-lg border p-4 transition-all hover:bg-secondary has-[:checked]:bg-accent has-[:checked]:text-accent-foreground has-[:checked]:shadow-inner cursor-pointer"
+                                    "flex items-center space-x-4 rounded-lg border p-4 transition-all hover:bg-secondary has-[:checked]:bg-primary has-[:checked]:text-primary-foreground has-[:checked]:shadow-inner cursor-pointer"
                                     }
                                 >
                                     <RadioGroupItem value={choice.id} id={`${currentQuestion.id}-${choice.id}`} />
@@ -251,8 +259,12 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
                 </div>
             ) : (
                 <div className="space-y-6">
-                    {questionGroups.map(group => renderGroup(group))}
-                    {questions.filter(q => !q.groupId).map(q => renderQuestion(q))}
+                    {formItems.map(item => {
+                        if (item.type === 'group') {
+                            return renderGroupForm(item.data, item.questions);
+                        }
+                        return renderSingleQuestionForm(item.data);
+                    })}
                     <div className="flex justify-end pt-4">
                         <Button onClick={handleSubmit} size="lg" className="bg-green-600 hover:bg-green-700 text-white">
                             <CheckSquare className="mr-2 h-5 w-5" /> Submit Mock Test
