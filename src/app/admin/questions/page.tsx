@@ -28,15 +28,109 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle, Upload, LayoutGrid, Rows3, Check } from "lucide-react";
-import { questions, tags } from "@/lib/data";
+import { MoreHorizontal, PlusCircle, Upload, LayoutGrid, Rows3, Check, BoxSelect } from "lucide-react";
+import { questions, tags, QuestionGroup, questionGroups } from "@/lib/data";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
+import type { Question } from "@/lib/types";
 
 type ViewType = "table" | "form";
 
+function QuestionCard({ question, isGrouped = false }: { question: Question, isGrouped?: boolean }) {
+    const getTagName = (tagId: string) => tags.find(t => t.id === tagId)?.name || 'Unknown';
+    return (
+        <Card className={cn(isGrouped && "ml-10 border-dashed")}>
+            <CardHeader className="flex flex-row items-start justify-between">
+               <div>
+                    <CardTitle className="text-lg">{question.text}</CardTitle>
+                    <div className="flex gap-1 mt-2">
+                        {question.tags.map(tagId => (
+                            <Badge key={tagId} variant="secondary">{getTagName(tagId)}</Badge>
+                        ))}
+                    </div>
+               </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button aria-haspopup="true" size="icon" variant="ghost">
+                      <MoreHorizontal className="h-4 w-4" />
+                      <span className="sr-only">Toggle menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuItem>Edit</DropdownMenuItem>
+                    <DropdownMenuItem>Delete</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+            </CardHeader>
+            <CardContent>
+                {question.imageUrl && (
+                    <div className="mb-4">
+                        <Image src={question.imageUrl} alt="Question reference" width={200} height={150} className="rounded-md object-cover" />
+                    </div>
+                )}
+               <div className="space-y-2 text-sm">
+                    {question.choices.map(choice => {
+                        const isCorrect = choice.id === question.correctChoiceId;
+                        return (
+                            <div key={choice.id} className={cn("flex items-center gap-2 rounded-md p-2", isCorrect ? "bg-green-100 dark:bg-green-900/30" : "bg-muted/50")}>
+                                {isCorrect ? <Check className="h-4 w-4 text-green-600 dark:text-green-400" /> : <div className="h-4 w-4"/>}
+                                <span className={cn(isCorrect && "font-semibold")}>{choice.text}</span>
+                            </div>
+                        )
+                    })}
+               </div>
+            </CardContent>
+        </Card>
+    )
+}
+
+function GroupCard({ group }: { group: QuestionGroup }) {
+    const groupQuestions = questions.filter(q => q.groupId === group.id);
+
+    return (
+        <Card className="bg-muted/30">
+            <CardHeader>
+                <div className="flex justify-between items-start">
+                    <div>
+                        <CardTitle className="flex items-center gap-2 text-xl">
+                            <BoxSelect className="h-6 w-6 text-primary" />
+                            Question Group
+                        </CardTitle>
+                        {group.referenceText && <CardDescription className="mt-2 italic">"{group.referenceText.substring(0, 150)}..."</CardDescription>}
+                    </div>
+                     <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                        </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem>Edit Group</DropdownMenuItem>
+                        <DropdownMenuItem>Delete Group</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                 {group.referenceImageUrl && (
+                    <div className="mb-4 p-4 border-b">
+                        <Image src={group.referenceImageUrl} alt="Group reference" width={300} height={200} className="rounded-md object-cover" />
+                    </div>
+                )}
+                {groupQuestions.map(q => <QuestionCard key={q.id} question={q} isGrouped />)}
+            </CardContent>
+        </Card>
+    );
+}
+
 export default function QuestionsPage() {
-  const [view, setView] = useState<ViewType>("table");
+  const [view, setView] = useState<ViewType>("form");
   const getTagName = (tagId: string) => tags.find(t => t.id === tagId)?.name || 'Unknown';
+  
+  const standaloneQuestions = questions.filter(q => !q.groupId);
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
@@ -83,6 +177,7 @@ export default function QuestionsPage() {
                   <TableHead>Question Text</TableHead>
                   <TableHead>Tags</TableHead>
                   <TableHead className="hidden md:table-cell">Choices</TableHead>
+                   <TableHead className="hidden md:table-cell">Group</TableHead>
                   <TableHead>
                     <span className="sr-only">Actions</span>
                   </TableHead>
@@ -100,6 +195,7 @@ export default function QuestionsPage() {
                       </div>
                     </TableCell>
                     <TableCell className="hidden md:table-cell">{question.choices.length}</TableCell>
+                    <TableCell className="hidden md:table-cell text-xs">{question.groupId || 'N/A'}</TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -120,53 +216,15 @@ export default function QuestionsPage() {
               </TableBody>
             </Table>
           ) : (
-             <div className="space-y-4">
-                {questions.map(question => (
-                    <Card key={question.id}>
-                        <CardHeader className="flex flex-row items-start justify-between">
-                           <div>
-                                <CardTitle className="text-lg">{question.text}</CardTitle>
-                                <div className="flex gap-1 mt-2">
-                                    {question.tags.map(tagId => (
-                                        <Badge key={tagId} variant="secondary">{getTagName(tagId)}</Badge>
-                                    ))}
-                                </div>
-                           </div>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button aria-haspopup="true" size="icon" variant="ghost">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                  <span className="sr-only">Toggle menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem>Edit</DropdownMenuItem>
-                                <DropdownMenuItem>Delete</DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                        </CardHeader>
-                        <CardContent>
-                           <div className="space-y-2 text-sm">
-                                {question.choices.map(choice => {
-                                    const isCorrect = choice.id === question.correctChoiceId;
-                                    return (
-                                        <div key={choice.id} className={cn("flex items-center gap-2 rounded-md p-2", isCorrect ? "bg-green-100 dark:bg-green-900/30" : "bg-muted/50")}>
-                                            {isCorrect ? <Check className="h-4 w-4 text-green-600 dark:text-green-400" /> : <div className="h-4 w-4"/>}
-                                            <span className={cn(isCorrect && "font-semibold")}>{choice.text}</span>
-                                        </div>
-                                    )
-                                })}
-                           </div>
-                        </CardContent>
-                    </Card>
-                ))}
+             <div className="space-y-6">
+                {questionGroups.map(group => <GroupCard key={group.id} group={group} />)}
+                {standaloneQuestions.map(question => <QuestionCard key={question.id} question={question} />)}
              </div>
           )}
         </CardContent>
         <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Showing <strong>1-{questions.length}</strong> of <strong>{questions.length}</strong> questions
+            Showing <strong>{questionGroups.length}</strong> groups and <strong>{standaloneQuestions.length}</strong> standalone questions.
           </div>
         </CardFooter>
       </Card>

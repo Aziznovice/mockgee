@@ -1,11 +1,20 @@
-import type { Tag, Question, Test, TestAttempt, TestSession } from './types';
+import type { Tag, Question, Test, TestAttempt, TestSession, QuestionGroup } from './types';
 
 export const tags: Tag[] = [
   { id: 't1', name: 'JavaScript' },
   { id: 't2', name: 'React' },
   { id: 't3', name: 'CSS' },
   { id: 't4', name: 'General Knowledge' },
+  { id: 't5', name: 'Reading Comprehension' },
 ];
+
+export const questionGroups: QuestionGroup[] = [
+    {
+        id: 'g1',
+        referenceText: "The following passage is about the history of computing. Read it carefully and answer the questions that follow. The first mechanical computer, created by Charles Babbage in 1822, was called the Difference Engine. It was designed to compute polynomial functions. Ada Lovelace, a mathematician, is often regarded as the first computer programmer for her work on Babbage's analytical engine.",
+        questionIds: ['q6', 'q7'],
+    }
+]
 
 export const questions: Question[] = [
   {
@@ -73,6 +82,34 @@ export const questions: Question[] = [
     explanation: 'The `padding` property is used to create space around an element\'s content, inside of any defined borders.',
     tags: ['t3'],
   },
+  {
+    id: 'q6',
+    text: 'Who is considered the first computer programmer?',
+    choices: [
+      { id: 'q6c1', text: 'Charles Babbage' },
+      { id: 'q6c2', text: 'Alan Turing' },
+      { id: 'q6c3', text: 'Ada Lovelace' },
+      { id: 'q6c4', text: 'Grace Hopper' },
+    ],
+    correctChoiceId: 'q6c3',
+    explanation: 'Ada Lovelace is credited with writing the first algorithm intended to be processed by a machine, making her the first computer programmer.',
+    tags: ['t4', 't5'],
+    groupId: 'g1',
+  },
+  {
+    id: 'q7',
+    text: 'What was the name of Charles Babbage\'s first mechanical computer?',
+    choices: [
+      { id: 'q7c1', text: 'The Analytical Engine' },
+      { id: 'q7c2', text: 'The Difference Engine' },
+      { id: 'q7c3', text: 'The Colossus' },
+      { id: 'q7c4', text: 'The ENIAC' },
+    ],
+    correctChoiceId: 'q7c2',
+    explanation: 'Charles Babbage\'s first mechanical computer, designed in 1822, was called the Difference Engine.',
+    tags: ['t4', 't5'],
+    groupId: 'g1',
+  },
 ];
 
 export const tests: Test[] = [
@@ -87,7 +124,7 @@ export const tests: Test[] = [
     id: '2',
     title: 'General Knowledge Challenge',
     description: 'How well do you know the world? Test your general knowledge with these questions.',
-    allQuestionIds: ['q4'],
+    allQuestionIds: ['q4', 'q6', 'q7'],
     imageUrl: 'https://placehold.co/600x400',
   },
 ];
@@ -96,7 +133,7 @@ export const testSessions: TestSession[] = [
     // Two different sessions for the same test topic
     { id: 's1', testId: '1', questionIds: ['q1', 'q2', 'q3', 'q5'], startedDate: '2024-07-18T09:00:00Z' },
     { id: 's2', testId: '1', questionIds: ['q5', 'q1', 'q2', 'q3'], startedDate: '2024-07-21T11:00:00Z' },
-    { id: 's3', testId: '2', questionIds: ['q4'], startedDate: '2024-07-19T14:30:00Z' },
+    { id: 's3', testId: '2', questionIds: ['q4', 'q6', 'q7'], startedDate: '2024-07-19T14:30:00Z' },
     // A session that is still in progress
     { id: 's4', testId: '2', questionIds: ['q4'], startedDate: '2024-07-22T11:00:00Z' },
 ];

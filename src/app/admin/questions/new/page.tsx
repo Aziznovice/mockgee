@@ -10,20 +10,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Trash2, PlusCircle, ArrowLeft, UploadCloud, CheckCircle } from 'lucide-react';
+import { Trash2, PlusCircle, ArrowLeft, UploadCloud, BoxSelect } from 'lucide-react';
 import { tags as allTags } from '@/lib/data';
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { cn } from '@/lib/utils';
+import { Switch } from '@/components/ui/switch';
 
 const choiceSchema = z.object({
     id: z.string().optional(),
     text: z.string().min(1, "Choice text cannot be empty"),
 });
 
-const questionFormSchema = z.object({
+const questionSchema = z.object({
     text: z.string().min(1, "Question text is required"),
     choices: z.array(choiceSchema).min(2, "Must have at least two choices"),
     correctChoiceIndex: z.coerce.number().min(0, "A correct choice must be selected"),
@@ -32,9 +32,25 @@ const questionFormSchema = z.object({
     imageUrl: z.string().optional(),
 });
 
-type QuestionFormData = z.infer<typeof questionFormSchema>;
+const formSchema = z.object({
+    isGrouped: z.boolean(),
+    referenceText: z.string().optional(),
+    referenceImageUrl: z.string().optional(),
+    questions: z.array(questionSchema),
+}).refine(data => {
+    if (data.isGrouped) {
+        return !!data.referenceText || !!data.referenceImageUrl;
+    }
+    return true;
+}, {
+    message: "A group must have a reference text or image.",
+    path: ["referenceText"],
+});
 
-function ImageUpload({ onFileChange }: { onFileChange: (file: File | null) => void }) {
+
+type FormData = z.infer<typeof formSchema>;
+
+function ImageUpload({ label, onFileChange }: { label: string, onFileChange: (file: File | null) => void }) {
     const [preview, setPreview] = useState<string | null>(null);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,7 +69,7 @@ function ImageUpload({ onFileChange }: { onFileChange: (file: File | null) => vo
 
     return (
         <div>
-            <Label>Optional Image</Label>
+            <Label>{label}</Label>
             <div className="mt-2 flex items-center gap-6">
                 <div className="w-32 h-20 rounded-md border flex items-center justify-center bg-muted overflow-hidden">
                     {preview ? (
@@ -68,28 +84,35 @@ function ImageUpload({ onFileChange }: { onFileChange: (file: File | null) => vo
     );
 }
 
+
 export default function NewQuestionPage() {
     const router = useRouter();
-    const form = useForm<QuestionFormData>({
-        resolver: zodResolver(questionFormSchema),
+    const form = useForm<FormData>({
+        resolver: zodResolver(formSchema),
         defaultValues: {
-            text: '',
-            choices: [{ text: '' }, { text: '' }],
-            correctChoiceIndex: 0,
-            explanation: '',
-            tags: [],
+            isGrouped: false,
+            referenceText: '',
+            questions: [{
+                text: '',
+                choices: [{ text: '' }, { text: '' }],
+                correctChoiceIndex: 0,
+                explanation: '',
+                tags: [],
+            }],
         },
     });
 
     const { fields, append, remove } = useFieldArray({
         control: form.control,
-        name: "choices",
+        name: "questions",
     });
 
-    const onSubmit = (data: QuestionFormData) => {
+    const isGrouped = form.watch('isGrouped');
+
+    const onSubmit = (data: FormData) => {
         console.log("Form submitted", data);
         // In a real app, you would handle file upload and save the data
-        alert('Question created successfully! (Check console for data)');
+        alert('Question(s) created successfully! (Check console for data)');
         router.push('/admin/questions');
     };
 
@@ -103,113 +126,141 @@ export default function NewQuestionPage() {
                     </Link>
                 </Button>
                 <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-                    Add New Question
+                    Add New Question(s)
                 </h1>
             </div>
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Question Details</CardTitle>
-                        <CardDescription>Enter the question text, explanation, and an optional image.</CardDescription>
+                        <div className="flex items-center justify-between">
+                             <div>
+                                <CardTitle>Question Structure</CardTitle>
+                                <CardDescription>Create a single question or a group of questions with a shared reference.</CardDescription>
+                             </div>
+                             <div className="flex items-center gap-2">
+                                <Label htmlFor="is-grouped">Group Questions</Label>
+                                <Switch id="is-grouped" {...form.register('isGrouped')} />
+                             </div>
+                        </div>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div>
-                            <Label htmlFor="text">Question Text</Label>
-                            <Textarea id="text" {...form.register('text')} />
-                            {form.formState.errors.text && <p className="text-red-500 text-sm">{form.formState.errors.text.message}</p>}
-                        </div>
-                        <div>
-                            <Label htmlFor="explanation">Explanation (Optional)</Label>
-                            <Textarea id="explanation" {...form.register('explanation')} />
-                        </div>
-                        <ImageUpload onFileChange={(file) => {
-                            // In a real app, you'd handle the file object for upload
-                            // For now, we'll just log it. In the future, this would set a value in the form.
-                            console.log(file);
-                        }} />
-                    </CardContent>
+                    {isGrouped && (
+                        <CardContent className="space-y-4 pt-4 border-t">
+                            <h3 className="font-medium flex items-center gap-2"><BoxSelect className="h-5 w-5"/> Group Reference</h3>
+                            <div>
+                                <Label htmlFor="referenceText">Reference Text / Passage (Optional)</Label>
+                                <Textarea id="referenceText" {...form.register('referenceText')} rows={5} />
+                            </div>
+                             <ImageUpload label="Reference Image (Optional)" onFileChange={(file) => {
+                                // Handle file object
+                                console.log("Reference image:", file)
+                            }}/>
+                            {form.formState.errors.referenceText && <p className="text-red-500 text-sm">{form.formState.errors.referenceText.message}</p>}
+                        </CardContent>
+                    )}
                 </Card>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Choices</CardTitle>
-                        <CardDescription>Add the possible answers and select the correct one.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <Controller
-                            control={form.control}
-                            name="correctChoiceIndex"
-                            render={({ field }) => (
-                                <RadioGroup
-                                    onValueChange={(val) => field.onChange(parseInt(val))}
-                                    value={String(field.value)}
-                                    className="space-y-2"
-                                >
-                                    {fields.map((choiceField, index) => (
-                                        <div key={choiceField.id} className="flex items-center gap-2">
-                                            <RadioGroupItem value={String(index)} id={`correct-choice-${index}`} />
-                                            <Label htmlFor={`correct-choice-${index}`} className="sr-only">Set as correct</Label>
-                                            <Input
-                                                {...form.register(`choices.${index}.text`)}
-                                                placeholder={`Choice ${index + 1}`}
-                                                className="flex-1"
-                                            />
-                                            <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} disabled={fields.length <= 2}>
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    ))}
-                                </RadioGroup>
-                            )}
-                        />
-                        {form.formState.errors.choices && <p className="text-red-500 text-sm">{form.formState.errors.choices.message}</p>}
-                         {form.formState.errors.correctChoiceIndex && <p className="text-red-500 text-sm">{form.formState.errors.correctChoiceIndex.message}</p>}
-                        <Button type="button" variant="outline" onClick={() => append({ text: '' })}>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Add Choice
-                        </Button>
-                    </CardContent>
-                </Card>
+                {fields.map((questionField, index) => {
+                    const { fields: choiceFields, append: appendChoice, remove: removeChoice } = useFieldArray({
+                        control: form.control,
+                        name: `questions.${index}.choices`
+                    });
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Categorization</CardTitle>
-                        <CardDescription>Select tags to categorize this question.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Controller
-                            control={form.control}
-                            name="tags"
-                            render={({ field }) => (
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
-                                    {allTags.map(tag => (
-                                        <Label key={tag.id} className="flex items-center gap-2 p-2 rounded-md border bg-background hover:bg-secondary cursor-pointer has-[:checked]:bg-primary has-[:checked]:text-primary-foreground">
-                                            <Input
-                                                type="checkbox"
-                                                value={tag.id}
-                                                checked={field.value?.includes(tag.id)}
-                                                onChange={(e) => {
-                                                    const newValues = e.target.checked
-                                                        ? [...(field.value || []), tag.id]
-                                                        : field.value?.filter(id => id !== tag.id);
-                                                    field.onChange(newValues);
-                                                }}
-                                                className="h-4 w-4"
-                                            />
-                                            {tag.name}
-                                        </Label>
-                                    ))}
+                    return (
+                    <Card key={questionField.id}>
+                        <CardHeader className="flex-row items-center justify-between">
+                            <div>
+                                <CardTitle>Question {index + 1}</CardTitle>
+                                <CardDescription>Enter the question text, choices, and correct answer.</CardDescription>
+                            </div>
+                             <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)} disabled={fields.length <= 1}>
+                                <Trash2 className="h-4 w-4" />
+                             </Button>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                             <div>
+                                <Label htmlFor={`questions.${index}.text`}>Question Text</Label>
+                                <Textarea id={`questions.${index}.text`} {...form.register(`questions.${index}.text`)} />
+                                {form.formState.errors.questions?.[index]?.text && <p className="text-red-500 text-sm">{form.formState.errors.questions?.[index]?.text?.message}</p>}
+                            </div>
+                            
+                            {/* Choices */}
+                             <div>
+                                <Label>Choices</Label>
+                                 <Controller
+                                    control={form.control}
+                                    name={`questions.${index}.correctChoiceIndex`}
+                                    render={({ field }) => (
+                                        <RadioGroup onValueChange={(val) => field.onChange(parseInt(val))} value={String(field.value)} className="space-y-2 mt-2">
+                                            {choiceFields.map((choiceField, choiceIndex) => (
+                                                <div key={choiceField.id} className="flex items-center gap-2">
+                                                    <RadioGroupItem value={String(choiceIndex)} id={`q-${index}-c-${choiceIndex}`} />
+                                                    <Label htmlFor={`q-${index}-c-${choiceIndex}`} className="sr-only">Set as correct</Label>
+                                                    <Input {...form.register(`questions.${index}.choices.${choiceIndex}.text`)} placeholder={`Choice ${choiceIndex + 1}`} className="flex-1" />
+                                                    <Button type="button" variant="ghost" size="icon" onClick={() => removeChoice(choiceIndex)} disabled={choiceFields.length <= 2}>
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                        </RadioGroup>
+                                    )}
+                                />
+                                {form.formState.errors.questions?.[index]?.choices && <p className="text-red-500 text-sm">{form.formState.errors.questions?.[index]?.choices?.message}</p>}
+                                <Button type="button" variant="outline" size="sm" onClick={() => appendChoice({ text: '' })} className="mt-2">
+                                    <PlusCircle className="mr-2 h-4 w-4" /> Add Choice
+                                </Button>
+                             </div>
+
+                             {/* Explanation and Image */}
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <Label htmlFor={`questions.${index}.explanation`}>Explanation (Optional)</Label>
+                                    <Textarea id={`questions.${index}.explanation`} {...form.register(`questions.${index}.explanation`)} />
                                 </div>
-                            )}
-                        />
-                        {form.formState.errors.tags && <p className="text-red-500 text-sm mt-2">{form.formState.errors.tags.message}</p>}
-                    </CardContent>
-                </Card>
+                                <ImageUpload label="Optional Image for this Question" onFileChange={(file) => {
+                                    console.log(`Image for question ${index}:`, file);
+                                }}/>
+                             </div>
+
+                             {/* Tags */}
+                             <div>
+                                 <Label>Tags</Label>
+                                 <Controller
+                                    control={form.control}
+                                    name={`questions.${index}.tags`}
+                                    render={({ field }) => (
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+                                            {allTags.map(tag => (
+                                                <Label key={tag.id} className="flex items-center gap-2 p-2 rounded-md border bg-background hover:bg-secondary cursor-pointer has-[:checked]:bg-primary has-[:checked]:text-primary-foreground">
+                                                    <Input type="checkbox" value={tag.id} checked={field.value?.includes(tag.id)}
+                                                        onChange={(e) => {
+                                                            const newValues = e.target.checked ? [...(field.value || []), tag.id] : field.value?.filter(id => id !== tag.id);
+                                                            field.onChange(newValues);
+                                                        }} className="h-4 w-4" />
+                                                    {tag.name}
+                                                </Label>
+                                            ))}
+                                        </div>
+                                    )}
+                                />
+                                {form.formState.errors.questions?.[index]?.tags && <p className="text-red-500 text-sm mt-2">{form.formState.errors.questions?.[index]?.tags?.message}</p>}
+                             </div>
+                        </CardContent>
+                    </Card>
+                    )
+                })}
+
+                {isGrouped && (
+                     <Button type="button" variant="outline" onClick={() => append({ text: '', choices: [{text: ''}, {text: ''}], correctChoiceIndex: 0, tags: [] })}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Another Question to Group
+                    </Button>
+                )}
+
 
                 <div className="flex justify-end gap-2">
                     <Button type="button" variant="outline" onClick={() => router.push('/admin/questions')}>Cancel</Button>
-                    <Button type="submit">Create Question</Button>
+                    <Button type="submit">Create Question(s)</Button>
                 </div>
             </form>
         </main>

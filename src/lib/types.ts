@@ -11,6 +11,15 @@ export interface Question {
   explanation: string;
   tags: string[];
   imageUrl?: string;
+  groupId?: string; // Add groupId to associate with a QuestionGroup
+}
+
+// New Type: A group of questions that share a common reference
+export interface QuestionGroup {
+  id: string;
+  referenceText?: string;
+  referenceImageUrl?: string;
+  questionIds: string[];
 }
 
 export interface Tag {
@@ -58,5 +67,4 @@ export interface TestAttempt {
     totalQuestions: number;
     status: 'completed' | 'in-progress';
     answers?: UserAnswers;
-    duration?: string;
 }
