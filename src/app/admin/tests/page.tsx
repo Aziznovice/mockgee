@@ -28,6 +28,12 @@ import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { tests } from "@/lib/data";
 
 export default function TestsPage() {
+  const getTotalQuestions = (test: (typeof tests)[0]) => {
+      if (test.subjects && test.subjects.length > 0) {
+          return test.subjects.reduce((sum, subject) => sum + subject.questionCount, 0);
+      }
+      return test.questionCount || 0;
+  }
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
       <Card>
@@ -66,7 +72,7 @@ export default function TestsPage() {
                 <TableRow key={test.id}>
                   <TableCell className="font-medium">{test.title}</TableCell>
                   <TableCell className="max-w-sm truncate">{test.description}</TableCell>
-                  <TableCell className="hidden md:table-cell">{test.allQuestionIds.length}</TableCell>
+                  <TableCell className="hidden md:table-cell">{getTotalQuestions(test)}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -77,7 +83,7 @@ export default function TestsPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem asChild>
                           <Link href={`/admin/tests/edit/${test.id}`}>Edit</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem>Delete</DropdownMenuItem>

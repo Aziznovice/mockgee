@@ -11,11 +11,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Trash2, PlusCircle, ArrowLeft, UploadCloud } from 'lucide-react';
+import { Trash2, PlusCircle, ArrowLeft, UploadCloud, AlertCircle } from 'lucide-react';
 import { tags as allTags } from '@/lib/data';
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const subjectSchema = z.object({
   id: z.string().optional(),
@@ -27,6 +28,7 @@ const subjectSchema = z.object({
 const testFormSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
+  totalQuestions: z.coerce.number().min(1, "Total questions must be at least 1"),
   useSubjects: z.boolean(),
   subjects: z.array(subjectSchema).optional(),
   tags: z.array(z.string()).optional(),
@@ -39,7 +41,17 @@ const testFormSchema = z.object({
 }, {
     message: "Please configure either subjects or overall test settings.",
     path: ["useSubjects"]
+}).refine(data => {
+    if (data.useSubjects && data.subjects) {
+        const subjectTotal = data.subjects.reduce((sum, subject) => sum + subject.questionCount, 0);
+        return subjectTotal === data.totalQuestions;
+    }
+    return true;
+}, {
+    message: "The sum of questions in subjects must match the total questions.",
+    path: ["totalQuestions"]
 });
+
 
 type TestFormData = z.infer<typeof testFormSchema>;
 
@@ -86,6 +98,7 @@ export default function NewTestPage() {
       subjects: [],
       tags: [],
       questionCount: 10,
+      totalQuestions: 10,
     }
   });
 
@@ -95,6 +108,11 @@ export default function NewTestPage() {
   });
   
   const watchedUseSubjects = form.watch('useSubjects');
+  const watchedSubjects = form.watch('subjects');
+  const watchedTotalQuestions = form.watch('totalQuestions');
+  const subjectTotal = watchedSubjects.reduce((sum, subject) => sum + (subject.questionCount || 0), 0);
+  const totalMismatch = watchedUseSubjects && subjectTotal !== watchedTotalQuestions;
+
 
   const onSubmit = (data: TestFormData) => {
     console.log('Form submitted', data);
@@ -123,11 +141,18 @@ export default function NewTestPage() {
             <CardDescription>Provide the main details for the mock test.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="title">Title</Label>
-              <Input id="title" {...form.register('title')} />
-              {form.formState.errors.title && <p className="text-red-500 text-sm">{form.formState.errors.title.message}</p>}
-            </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="title">Title</Label>
+                  <Input id="title" {...form.register('title')} />
+                  {form.formState.errors.title && <p className="text-red-500 text-sm">{form.formState.errors.title.message}</p>}
+                </div>
+                <div>
+                    <Label htmlFor="totalQuestions">Total Questions</Label>
+                    <Input id="totalQuestions" type="number" {...form.register('totalQuestions')} />
+                    {form.formState.errors.totalQuestions && <p className="text-red-500 text-sm">{form.formState.errors.totalQuestions.message}</p>}
+                </div>
+             </div>
             <div>
               <Label htmlFor="description">Description</Label>
               <Textarea id="description" {...form.register('description')} />
@@ -163,6 +188,14 @@ export default function NewTestPage() {
             <CardContent>
                 {watchedUseSubjects ? (
                     <div className="space-y-4">
+                        {totalMismatch && (
+                             <Alert variant="destructive">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertDescription>
+                                    The sum of questions in subjects ({subjectTotal}) does not match the total questions ({watchedTotalQuestions}).
+                                </AlertDescription>
+                            </Alert>
+                        )}
                         {fields.map((field, index) => (
                           <Card key={field.id} className="p-4 bg-muted/50">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -251,7 +284,7 @@ export default function NewTestPage() {
                         </div>
                     </div>
                 )}
-                 {form.formState.errors.useSubjects && <p className="text-red-500 text-sm mt-4">{form.formState.errors.useSubjects.message}</p>}
+                 {form.formState.errors.useSubjects && !totalMismatch && <p className="text-red-500 text-sm mt-4">{form.formState.errors.useSubjects.message}</p>}
             </CardContent>
         </Card>
 
