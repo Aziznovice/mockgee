@@ -25,18 +25,31 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle, Upload, LayoutGrid, Rows3, Check, BoxSelect } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Upload, LayoutGrid, Rows3, Check, BoxSelect, Trash2 } from "lucide-react";
 import { questions, tags, QuestionGroup, questionGroups } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import type { Question } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
 
 type ViewType = "table" | "form";
+type DeletionTarget = { id: string, type: 'question' | 'group', name: string } | null;
 
-function QuestionCard({ question, isGrouped = false }: { question: Question, isGrouped?: boolean }) {
+function QuestionCard({ question, isGrouped = false, onEdit, onDelete }: { question: Question, isGrouped?: boolean, onEdit: (id: string) => void, onDelete: (target: DeletionTarget) => void }) {
     const getTagName = (tagId: string) => tags.find(t => t.id === tagId)?.name || 'Unknown';
     return (
         <Card className={cn(isGrouped && "ml-10 border-dashed")}>
@@ -58,8 +71,8 @@ function QuestionCard({ question, isGrouped = false }: { question: Question, isG
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                    <DropdownMenuItem>Delete</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onEdit(question.id)}>Edit</DropdownMenuItem>
+                    <DropdownMenuItem className="text-red-600" onClick={() => onDelete({ id: question.id, type: 'question', name: question.text })}>Delete</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
             </CardHeader>
@@ -85,7 +98,7 @@ function QuestionCard({ question, isGrouped = false }: { question: Question, isG
     )
 }
 
-function GroupCard({ group }: { group: QuestionGroup }) {
+function GroupCard({ group, onEdit, onDelete }: { group: QuestionGroup, onEdit: (id: string) => void, onDelete: (target: DeletionTarget) => void }) {
     const groupQuestions = questions.filter(q => q.groupId === group.id);
 
     return (
@@ -108,10 +121,12 @@ function GroupCard({ group }: { group: QuestionGroup }) {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem asChild>
-                          <Link href={`/admin/questions/edit-group/${group.id}`}>Edit Group</Link>
+                        <DropdownMenuItem onClick={() => onEdit(group.id)}>Edit Group</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="text-red-600" onClick={() => onDelete({ id: group.id, type: 'group', name: 'this Question Group' })}>
+                           <Trash2 className="mr-2 h-4 w-4" />
+                           Delete Group
                         </DropdownMenuItem>
-                        <DropdownMenuItem>Delete Group</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -130,11 +145,42 @@ function GroupCard({ group }: { group: QuestionGroup }) {
 
 export default function QuestionsPage() {
   const [view, setView] = useState<ViewType>("form");
+  const { toast } = useToast();
+  const [deletionTarget, setDeletionTarget] = useState<DeletionTarget>(null);
+
   const getTagName = (tagId: string) => tags.find(t => t.id === tagId)?.name || 'Unknown';
   
   const standaloneQuestions = questions.filter(q => !q.groupId);
 
+  const handleConfirmDelete = () => {
+    if (!deletionTarget) return;
+    // In a real app, you'd call an API here.
+    console.log("Deleting", deletionTarget.type, deletionTarget.id);
+    toast({
+        title: "Content Deleted",
+        description: `The ${deletionTarget.type} has been successfully deleted.`,
+        variant: 'destructive'
+    });
+    setDeletionTarget(null);
+  };
+  
   return (
+    <>
+    <AlertDialog open={!!deletionTarget} onOpenChange={() => setDeletionTarget(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete {deletionTarget?.name}.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
         <div className="flex items-center justify-between">
             <div>
@@ -208,8 +254,10 @@ export default function QuestionsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem>Delete</DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href={question.groupId ? `/admin/questions/edit-group/${question.groupId}` : `/admin/questions/edit/${question.id}`}>Edit</Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setDeletionTarget({ id: question.id, type: 'question', name: question.text })}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -219,8 +267,22 @@ export default function QuestionsPage() {
             </Table>
           ) : (
              <div className="space-y-6">
-                {questionGroups.map(group => <GroupCard key={group.id} group={group} />)}
-                {standaloneQuestions.map(question => <QuestionCard key={question.id} question={question} />)}
+                {questionGroups.map(group => (
+                    <GroupCard 
+                        key={group.id} 
+                        group={group} 
+                        onEdit={(id) => router.push(`/admin/questions/edit-group/${id}`)}
+                        onDelete={setDeletionTarget}
+                    />
+                ))}
+                {standaloneQuestions.map(question => (
+                    <QuestionCard 
+                        key={question.id} 
+                        question={question}
+                        onEdit={(id) => router.push(`/admin/questions/edit/${id}`)}
+                        onDelete={setDeletionTarget}
+                    />
+                ))}
              </div>
           )}
         </CardContent>
@@ -231,5 +293,6 @@ export default function QuestionsPage() {
         </CardFooter>
       </Card>
     </main>
+    </>
   );
 }

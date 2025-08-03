@@ -1,4 +1,7 @@
 
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import {
   Card,
@@ -23,18 +26,66 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+  } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
-import { tests } from "@/lib/data";
+import { tests as initialTests } from "@/lib/data";
+import type { Test } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
+
 
 export default function TestsPage() {
-  const getTotalQuestions = (test: (typeof tests)[0]) => {
+    const { toast } = useToast();
+    const [tests, setTests] = useState(initialTests);
+    const [deletingTest, setDeletingTest] = useState<Test | null>(null);
+
+  const getTotalQuestions = (test: Test) => {
       if (test.subjects && test.subjects.length > 0) {
           return test.subjects.reduce((sum, subject) => sum + subject.questionCount, 0);
       }
       return test.questionCount || 0;
   }
+
+  const handleDeleteClick = (test: Test) => {
+    setDeletingTest(test);
+  };
+
+  const handleConfirmDelete = () => {
+      if (!deletingTest) return;
+      setTests(tests.filter(t => t.id !== deletingTest.id));
+      toast({
+          title: "Test Deleted",
+          description: `The test "${deletingTest.title}" has been deleted.`,
+          variant: 'destructive'
+      })
+      setDeletingTest(null);
+  }
+
   return (
+    <>
+      <AlertDialog open={!!deletingTest} onOpenChange={() => setDeletingTest(null)}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure you want to delete this test?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete the test "{deletingTest?.title}".
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
       <Card>
         <CardHeader>
@@ -86,7 +137,7 @@ export default function TestsPage() {
                         <DropdownMenuItem asChild>
                           <Link href={`/admin/tests/edit/${test.id}`}>Edit</Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDeleteClick(test)}>Delete</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -102,5 +153,6 @@ export default function TestsPage() {
         </CardFooter>
       </Card>
     </main>
+    </>
   );
 }
