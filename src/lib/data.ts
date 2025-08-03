@@ -14,6 +14,7 @@ export const questionGroups: QuestionGroup[] = [
         id: 'g1',
         referenceText: "The following passage is about the history of computing. Read it carefully and answer the questions that follow.\n\nThe first mechanical computer, created by Charles Babbage in 1822, was called the Difference Engine. It was designed to compute polynomial functions. Ada Lovelace, a mathematician, is often regarded as the first computer programmer for her work on Babbage's analytical engine. Her notes on the engine include what is recognised as the first algorithm intended to be carried out by a machine. Because of this, she is often considered the first computer programmer. The Analytical Engine was a more general-purpose computer. It could be programmed using punched cards. It was intended to be able to perform any calculation that could be imagined.",
         questionIds: ['q6', 'q7'],
+        referenceImageUrl: "https://placehold.co/600x400",
     }
 ]
 
@@ -180,12 +181,17 @@ export const testAttempts: TestAttempt[] = [
 
 export const getTestById = (id: string) => tests.find(t => t.id === id);
 export const getSessionById = (id: string) => testSessions.find(s => s.id === id);
+export const getQuestionGroupById = (id: string) => questionGroups.find(g => g.id === id);
 
 // This function now needs a session ID
 export const getQuestionsForSession = (sessionId: string) => {
     const session = getSessionById(sessionId);
     if (!session) return [];
     return questions.filter(q => session.questionIds.includes(q.id));
+}
+
+export const getQuestionsForGroup = (groupId: string) => {
+    return questions.filter(q => q.groupId === groupId);
 }
 
 // Get all question groups that have questions in the current session

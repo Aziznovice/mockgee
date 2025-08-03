@@ -108,7 +108,9 @@ function GroupCard({ group }: { group: QuestionGroup }) {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Edit Group</DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href={`/admin/questions/edit-group/${group.id}`}>Edit Group</Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem>Delete Group</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
