@@ -36,6 +36,8 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<UserAnswers>(initialAnswers);
   const [view, setView] = useState<"card" | "form">("card");
+  const [visitedIndices, setVisitedIndices] = useState<Set<number>>(new Set([0]));
+
 
   const allQuestions = useMemo(() => {
     return questions.sort((a,b) => (a.groupId || '').localeCompare(b.groupId || ''));
@@ -58,6 +60,10 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
 
   const currentQuestion = allQuestions[currentQuestionIndex];
   const currentGroup = currentQuestion?.groupId ? questionGroups.find(g => g.id === currentQuestion.groupId) : null;
+
+  useEffect(() => {
+    setVisitedIndices(prev => new Set(prev).add(currentQuestionIndex));
+  }, [currentQuestionIndex]);
 
   const handleAnswerChange = (questionId: string, choiceId: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: choiceId }));
@@ -163,9 +169,9 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
             </div>
 
             {view === 'card' ? (
-                <div className={cn("grid grid-cols-1 gap-8", currentGroup ? "lg:grid-cols-2 lg:gap-12" : "")}>
+                <div className={cn("grid grid-cols-1 gap-8", currentGroup && "lg:grid-cols-2 lg:gap-12")}>
                     {currentGroup && (
-                        <div>
+                        <div className="lg:order-first">
                              <Card className="shadow-xl rounded-xl sticky top-24">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
@@ -193,13 +199,19 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
                         <CardHeader className="pb-2">
                             <div className="flex justify-center items-center gap-2 my-4">
                                 {allQuestions.map((q, index) => {
-                                    const isAnswered = answers[q.id];
+                                    const isAnswered = !!answers[q.id];
+                                    const isSkipped = visitedIndices.has(index) && !isAnswered && index !== currentQuestionIndex;
+                                    const isCurrent = index === currentQuestionIndex;
+
                                     return (
                                     <div
                                         key={index}
                                         className={cn(
                                         "h-2 w-full rounded-full transition-all cursor-pointer flex-1",
-                                        index === currentQuestionIndex ? "bg-primary" : (isAnswered ? "bg-primary/30" : "bg-muted hover:bg-muted-foreground/50")
+                                        isCurrent ? "bg-primary" : 
+                                        isAnswered ? "bg-primary/30" :
+                                        isSkipped ? "bg-destructive" :
+                                        "bg-muted hover:bg-muted-foreground/50"
                                         )}
                                         style={{maxWidth: `calc(${100/allQuestions.length}% - 4px)`}}
                                         onClick={() => setCurrentQuestionIndex(index)}
@@ -276,3 +288,5 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
     </div>
   );
 }
+
+    
