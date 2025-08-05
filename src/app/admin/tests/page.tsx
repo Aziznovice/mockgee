@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import {
   Card,
@@ -37,38 +37,88 @@ import {
     AlertDialogTitle,
   } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { MoreHorizontal, PlusCircle, ArrowUpDown, Search } from "lucide-react";
 import { tests as initialTests } from "@/lib/data";
 import type { Test } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 
+type SortConfig = { key: keyof Test | 'questionCount'; direction: 'ascending' | 'descending' } | null;
 
 export default function TestsPage() {
     const { toast } = useToast();
     const [tests, setTests] = useState(initialTests);
     const [deletingTest, setDeletingTest] = useState<Test | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sortConfig, setSortConfig] = useState<SortConfig>(null);
 
-  const getTotalQuestions = (test: Test) => {
-      if (test.subjects && test.subjects.length > 0) {
-          return test.subjects.reduce((sum, subject) => sum + subject.questionCount, 0);
+    const getTotalQuestions = (test: Test) => {
+        if (test.subjects && test.subjects.length > 0) {
+            return test.subjects.reduce((sum, subject) => sum + subject.questionCount, 0);
+        }
+        return test.questionCount || 0;
+    }
+
+    const sortedAndFilteredTests = useMemo(() => {
+        let filtered = tests.filter(test =>
+            test.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            test.description.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+        if (sortConfig !== null) {
+            filtered.sort((a, b) => {
+                let aValue: any;
+                let bValue: any;
+
+                if (sortConfig.key === 'questionCount') {
+                    aValue = getTotalQuestions(a);
+                    bValue = getTotalQuestions(b);
+                } else {
+                    aValue = a[sortConfig.key as keyof Test];
+                    bValue = b[sortConfig.key as keyof Test];
+                }
+
+                if (aValue < bValue) {
+                    return sortConfig.direction === 'ascending' ? -1 : 1;
+                }
+                if (aValue > bValue) {
+                    return sortConfig.direction === 'ascending' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        return filtered;
+    }, [tests, searchTerm, sortConfig]);
+
+    const requestSort = (key: keyof Test | 'questionCount') => {
+        let direction: 'ascending' | 'descending' = 'ascending';
+        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
+          direction = 'descending';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const getSortIcon = (key: keyof Test | 'questionCount') => {
+      if (!sortConfig || sortConfig.key !== key) {
+        return <ArrowUpDown className="ml-2 h-4 w-4" />;
       }
-      return test.questionCount || 0;
-  }
+      return sortConfig.direction === 'ascending' ? <ArrowUpDown className="ml-2 h-4 w-4" /> : <ArrowUpDown className="ml-2 h-4 w-4" />;
+    };
 
-  const handleDeleteClick = (test: Test) => {
-    setDeletingTest(test);
-  };
+    const handleDeleteClick = (test: Test) => {
+        setDeletingTest(test);
+    };
 
-  const handleConfirmDelete = () => {
-      if (!deletingTest) return;
-      setTests(tests.filter(t => t.id !== deletingTest.id));
-      toast({
-          title: "Test Deleted",
-          description: `The test "${deletingTest.title}" has been deleted.`,
-          variant: 'destructive'
-      })
-      setDeletingTest(null);
-  }
+    const handleConfirmDelete = () => {
+        if (!deletingTest) return;
+        setTests(tests.filter(t => t.id !== deletingTest.id));
+        toast({
+            title: "Test Deleted",
+            description: `The test "${deletingTest.title}" has been deleted.`,
+            variant: 'destructive'
+        })
+        setDeletingTest(null);
+    }
 
   return (
     <>
@@ -107,19 +157,46 @@ export default function TestsPage() {
           </div>
         </CardHeader>
         <CardContent>
+            <div className="mb-4">
+                <div className="relative">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        type="search"
+                        placeholder="Search tests..."
+                        className="w-full pl-8 sm:w-1/2 md:w-1/3"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+            </div>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Test Title</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="hidden md:table-cell">Questions</TableHead>
+                <TableHead>
+                    <Button variant="ghost" onClick={() => requestSort('title')}>
+                        Test Title
+                        {getSortIcon('title')}
+                    </Button>
+                </TableHead>
+                <TableHead>
+                     <Button variant="ghost" onClick={() => requestSort('description')}>
+                        Description
+                        {getSortIcon('description')}
+                    </Button>
+                </TableHead>
+                <TableHead className="hidden md:table-cell">
+                     <Button variant="ghost" onClick={() => requestSort('questionCount')}>
+                        Questions
+                        {getSortIcon('questionCount')}
+                    </Button>
+                </TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {tests.map((test) => (
+              {sortedAndFilteredTests.map((test) => (
                 <TableRow key={test.id}>
                   <TableCell className="font-medium">{test.title}</TableCell>
                   <TableCell className="max-w-sm truncate">{test.description}</TableCell>
@@ -148,7 +225,7 @@ export default function TestsPage() {
         </CardContent>
         <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Showing <strong>1-{tests.length}</strong> of <strong>{tests.length}</strong> tests
+            Showing <strong>{sortedAndFilteredTests.length}</strong> of <strong>{tests.length}</strong> tests
           </div>
         </CardFooter>
       </Card>

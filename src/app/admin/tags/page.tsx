@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -48,7 +48,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, PlusCircle, ArrowUpDown, Search } from "lucide-react";
 import { tags as initialTags, questions } from "@/lib/data";
 import type { Tag } from "@/lib/types";
 import { useForm } from "react-hook-form";
@@ -60,22 +60,62 @@ const tagSchema = z.object({
   name: z.string().min(1, "Tag name cannot be empty."),
 });
 type TagFormData = z.infer<typeof tagSchema>;
+type SortConfig = { key: 'name' | 'questionCount' | 'id'; direction: 'ascending' | 'descending' } | null;
 
 export default function TagsPage() {
   const { toast } = useToast();
-  const [tags, setTags] = useState(initialTags);
+  const [tags, setTags] = useState(initialTags.map(tag => ({
+      ...tag,
+      questionCount: questions.filter(q => q.tags.includes(tag.id)).length
+  })));
   const [isNewTagDialogOpen, setIsNewTagDialogOpen] = useState(false);
   const [editingTag, setEditingTag] = useState<Tag | null>(null);
   const [deletingTag, setDeletingTag] = useState<Tag | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'name', direction: 'ascending' });
 
   const form = useForm<TagFormData>({
     resolver: zodResolver(tagSchema),
     defaultValues: { name: "" },
   });
 
-  const getQuestionCountForTag = (tagId: string) => {
-    return questions.filter(q => q.tags.includes(tagId)).length;
+  const sortedAndFilteredTags = useMemo(() => {
+    let filtered = tags.filter(tag =>
+      tag.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    if (sortConfig !== null) {
+      filtered.sort((a, b) => {
+        const aValue = a[sortConfig.key as keyof typeof a];
+        const bValue = b[sortConfig.key as keyof typeof b];
+
+        if (aValue < bValue) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [tags, searchTerm, sortConfig]);
+
+  const requestSort = (key: 'name' | 'questionCount' | 'id') => {
+    let direction: 'ascending' | 'descending' = 'ascending';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
   };
+  
+  const getSortIcon = (key: 'name' | 'questionCount' | 'id') => {
+    if (!sortConfig || sortConfig.key !== key) {
+        return <ArrowUpDown className="ml-2 h-4 w-4" />
+    }
+    return sortConfig.direction === 'ascending' ? <ArrowUpDown className="ml-2 h-4 w-4" /> : <ArrowUpDown className="ml-2 h-4 w-4" />;
+  }
 
   const handleEditClick = (tag: Tag) => {
     form.setValue("name", tag.name);
@@ -99,7 +139,6 @@ export default function TagsPage() {
 
   const onSubmit = (data: TagFormData) => {
     if (editingTag) {
-      // Update existing tag
       setTags(
         tags.map((t) =>
           t.id === editingTag.id ? { ...t, name: data.name } : t
@@ -111,10 +150,10 @@ export default function TagsPage() {
       });
       setEditingTag(null);
     } else {
-      // Add new tag
-      const newTag: Tag = {
-        id: `t${tags.length + 1}`,
+      const newTag = {
+        id: `t${Date.now()}`,
         name: data.name,
+        questionCount: 0,
       };
       setTags([...tags, newTag]);
       toast({
@@ -206,22 +245,49 @@ export default function TagsPage() {
             </div>
           </CardHeader>
           <CardContent>
+            <div className="mb-4">
+                <div className="relative">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        type="search"
+                        placeholder="Search tags..."
+                        className="w-full pl-8 sm:w-1/2 md:w-1/3"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+            </div>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Tag Name</TableHead>
-                  <TableHead>Questions</TableHead>
-                  <TableHead className="hidden md:table-cell">Tag ID</TableHead>
+                  <TableHead>
+                    <Button variant="ghost" onClick={() => requestSort('name')}>
+                        Tag Name
+                        {getSortIcon('name')}
+                    </Button>
+                  </TableHead>
+                  <TableHead>
+                     <Button variant="ghost" onClick={() => requestSort('questionCount')}>
+                        Questions
+                        {getSortIcon('questionCount')}
+                    </Button>
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    <Button variant="ghost" onClick={() => requestSort('id')}>
+                        Tag ID
+                        {getSortIcon('id')}
+                    </Button>
+                  </TableHead>
                   <TableHead>
                     <span className="sr-only">Actions</span>
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {tags.map((tag) => (
+                {sortedAndFilteredTags.map((tag) => (
                   <TableRow key={tag.id}>
                     <TableCell className="font-medium">{tag.name}</TableCell>
-                    <TableCell>{getQuestionCountForTag(tag.id)}</TableCell>
+                    <TableCell>{tag.questionCount}</TableCell>
                     <TableCell className="hidden md:table-cell font-mono text-xs">
                       {tag.id}
                     </TableCell>
@@ -255,7 +321,7 @@ export default function TagsPage() {
           </CardContent>
           <CardFooter>
             <div className="text-xs text-muted-foreground">
-              Showing <strong>1-{tags.length}</strong> of{" "}
+              Showing <strong>{sortedAndFilteredTags.length}</strong> of{" "}
               <strong>{tags.length}</strong> tags
             </div>
           </CardFooter>

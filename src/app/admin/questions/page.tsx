@@ -1,8 +1,9 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -39,8 +40,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle, Upload, LayoutGrid, Rows3, Check, BoxSelect, Trash2 } from "lucide-react";
-import { questions, tags, QuestionGroup, questionGroups } from "@/lib/data";
+import { Input } from "@/components/ui/input";
+import { MoreHorizontal, PlusCircle, Upload, LayoutGrid, Rows3, Check, BoxSelect, Trash2, ArrowUpDown, Search } from "lucide-react";
+import { questions as allQuestions, tags, QuestionGroup, questionGroups as allQuestionGroups } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import type { Question } from "@/lib/types";
@@ -48,8 +50,9 @@ import { useToast } from "@/hooks/use-toast";
 
 type ViewType = "table" | "form";
 type DeletionTarget = { id: string, type: 'question' | 'group', name: string } | null;
+type SortConfig = { key: keyof Question | 'group'; direction: 'ascending' | 'descending' } | null;
 
-function QuestionCard({ question, isGrouped = false, onEdit, onDelete }: { question: Question, isGrouped?: boolean, onEdit: (id: string) => void, onDelete: (target: DeletionTarget) => void }) {
+function QuestionCard({ question, isGrouped = false, onEdit, onDelete }: { question: Question, isGrouped?: boolean, onEdit: (id: string, groupId?: string) => void, onDelete: (target: DeletionTarget) => void }) {
     const getTagName = (tagId: string) => tags.find(t => t.id === tagId)?.name || 'Unknown';
     return (
         <Card className={cn(isGrouped && "ml-10 border-dashed")}>
@@ -71,7 +74,7 @@ function QuestionCard({ question, isGrouped = false, onEdit, onDelete }: { quest
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => onEdit(question.id)}>Edit</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onEdit(question.id, question.groupId)}>Edit</DropdownMenuItem>
                     <DropdownMenuItem className="text-red-600" onClick={() => onDelete({ id: question.id, type: 'question', name: question.text })}>Delete</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -98,8 +101,8 @@ function QuestionCard({ question, isGrouped = false, onEdit, onDelete }: { quest
     )
 }
 
-function GroupCard({ group, onEdit, onDelete }: { group: QuestionGroup, onEdit: (id: string) => void, onDelete: (target: DeletionTarget) => void }) {
-    const groupQuestions = questions.filter(q => q.groupId === group.id);
+function GroupCard({ group, onEdit, onDelete }: { group: QuestionGroup, onEdit: (id: string, groupId?: string) => void, onDelete: (target: DeletionTarget) => void }) {
+    const groupQuestions = allQuestions.filter(q => q.groupId === group.id);
 
     return (
         <Card className="bg-muted/30">
@@ -121,7 +124,7 @@ function GroupCard({ group, onEdit, onDelete }: { group: QuestionGroup, onEdit: 
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => onEdit(group.id)}>Edit Group</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onEdit(group.id, group.id)}>Edit Group</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-red-600" onClick={() => onDelete({ id: group.id, type: 'group', name: 'this Question Group' })}>
                            <Trash2 className="mr-2 h-4 w-4" />
@@ -137,7 +140,7 @@ function GroupCard({ group, onEdit, onDelete }: { group: QuestionGroup, onEdit: 
                         <Image src={group.referenceImageUrl} alt="Group reference" width={300} height={200} className="rounded-md object-cover" />
                     </div>
                 )}
-                {groupQuestions.map(q => <QuestionCard key={q.id} question={q} isGrouped />)}
+                {groupQuestions.map(q => <QuestionCard key={q.id} question={q} isGrouped onEdit={onEdit} onDelete={onDelete} />)}
             </CardContent>
         </Card>
     );
@@ -146,11 +149,65 @@ function GroupCard({ group, onEdit, onDelete }: { group: QuestionGroup, onEdit: 
 export default function QuestionsPage() {
   const [view, setView] = useState<ViewType>("form");
   const { toast } = useToast();
+  const router = useRouter();
   const [deletionTarget, setDeletionTarget] = useState<DeletionTarget>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState<SortConfig>(null);
 
   const getTagName = (tagId: string) => tags.find(t => t.id === tagId)?.name || 'Unknown';
   
-  const standaloneQuestions = questions.filter(q => !q.groupId);
+  const sortedAndFilteredQuestions = useMemo(() => {
+    let filtered = allQuestions.filter(q =>
+        q.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        q.tags.some(tagId => getTagName(tagId).toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+
+    if (sortConfig !== null) {
+      filtered.sort((a, b) => {
+        const key = sortConfig.key;
+        let aValue: any = a[key as keyof Question];
+        let bValue: any = b[key as keyof Question];
+
+        if (key === 'group') {
+            aValue = a.groupId || 'zzzz'; // standalone questions last
+            bValue = b.groupId || 'zzzz';
+        }
+        
+        if (aValue < bValue) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [searchTerm, sortConfig]);
+
+  const requestSort = (key: keyof Question | 'group') => {
+    let direction: 'ascending' | 'descending' = 'ascending';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortIcon = (key: keyof Question | 'group') => {
+    if (!sortConfig || sortConfig.key !== key) {
+      return <ArrowUpDown className="ml-2 h-4 w-4" />;
+    }
+    return sortConfig.direction === 'ascending' ? <ArrowUpDown className="ml-2 h-4 w-4" /> : <ArrowUpDown className="ml-2 h-4 w-4" />;
+  };
+
+  const handleEditClick = (id: string, groupId?: string) => {
+    const url = groupId ? `/admin/questions/edit-group/${groupId}` : `/admin/questions/edit/${id}`;
+    router.push(url);
+  }
+  
+  const standaloneQuestions = allQuestions.filter(q => !q.groupId);
+  const questionGroups = allQuestionGroups;
 
   const handleConfirmDelete = () => {
     if (!deletionTarget) return;
@@ -219,59 +276,91 @@ export default function QuestionsPage() {
       <Card>
         <CardContent className="pt-6">
           {view === "table" ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Question Text</TableHead>
-                  <TableHead>Tags</TableHead>
-                  <TableHead className="hidden md:table-cell">Choices</TableHead>
-                   <TableHead className="hidden md:table-cell">Group</TableHead>
-                  <TableHead>
-                    <span className="sr-only">Actions</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {questions.map((question) => (
-                  <TableRow key={question.id}>
-                    <TableCell className="font-medium max-w-sm truncate">{question.text}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                          {question.tags.map(tagId => (
-                              <Badge key={tagId} variant="secondary">{getTagName(tagId)}</Badge>
-                          ))}
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">{question.choices.length}</TableCell>
-                    <TableCell className="hidden md:table-cell text-xs">{question.groupId || 'N/A'}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button aria-haspopup="true" size="icon" variant="ghost">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem asChild>
-                            <Link href={question.groupId ? `/admin/questions/edit-group/${question.groupId}` : `/admin/questions/edit/${question.id}`}>Edit</Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setDeletionTarget({ id: question.id, type: 'question', name: question.text })}>Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div>
+                 <div className="mb-4">
+                    <div className="relative">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            type="search"
+                            placeholder="Search questions or tags..."
+                            className="w-full pl-8 sm:w-1/2 md:w-1/3"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>
+                        <Button variant="ghost" onClick={() => requestSort('text')}>
+                            Question Text
+                            {getSortIcon('text')}
+                        </Button>
+                      </TableHead>
+                      <TableHead>
+                         <Button variant="ghost" onClick={() => requestSort('tags')}>
+                            Tags
+                            {getSortIcon('tags')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        <Button variant="ghost" onClick={() => requestSort('choices')}>
+                            Choices
+                           {getSortIcon('choices')}
+                        </Button>
+                      </TableHead>
+                       <TableHead className="hidden md:table-cell">
+                        <Button variant="ghost" onClick={() => requestSort('group')}>
+                            Group
+                            {getSortIcon('group')}
+                        </Button>
+                       </TableHead>
+                      <TableHead>
+                        <span className="sr-only">Actions</span>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedAndFilteredQuestions.map((question) => (
+                      <TableRow key={question.id}>
+                        <TableCell className="font-medium max-w-sm truncate">{question.text}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                              {question.tags.map(tagId => (
+                                  <Badge key={tagId} variant="secondary">{getTagName(tagId)}</Badge>
+                              ))}
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">{question.choices.length}</TableCell>
+                        <TableCell className="hidden md:table-cell text-xs">{question.groupId || 'N/A'}</TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button aria-haspopup="true" size="icon" variant="ghost">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Toggle menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuItem onClick={() => handleEditClick(question.id, question.groupId)}>Edit</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setDeletionTarget({ id: question.id, type: 'question', name: question.text })}>Delete</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+            </div>
           ) : (
              <div className="space-y-6">
                 {questionGroups.map(group => (
                     <GroupCard 
                         key={group.id} 
                         group={group} 
-                        onEdit={(id) => router.push(`/admin/questions/edit-group/${id}`)}
+                        onEdit={handleEditClick}
                         onDelete={setDeletionTarget}
                     />
                 ))}
@@ -279,7 +368,7 @@ export default function QuestionsPage() {
                     <QuestionCard 
                         key={question.id} 
                         question={question}
-                        onEdit={(id) => router.push(`/admin/questions/edit/${id}`)}
+                        onEdit={handleEditClick}
                         onDelete={setDeletionTarget}
                     />
                 ))}
@@ -288,7 +377,7 @@ export default function QuestionsPage() {
         </CardContent>
         <CardFooter>
           <div className="text-xs text-muted-foreground">
-            Showing <strong>{questionGroups.length}</strong> groups and <strong>{standaloneQuestions.length}</strong> standalone questions.
+            Showing <strong>{view === 'table' ? sortedAndFilteredQuestions.length : questionGroups.length + standaloneQuestions.length}</strong> of <strong>{allQuestions.length}</strong> questions.
           </div>
         </CardFooter>
       </Card>

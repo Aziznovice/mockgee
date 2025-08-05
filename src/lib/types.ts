@@ -25,6 +25,7 @@ export interface QuestionGroup {
 export interface Tag {
   id: string;
   name: string;
+  questionCount?: number;
 }
 
 export interface TestSubject {
