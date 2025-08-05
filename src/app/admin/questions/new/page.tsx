@@ -10,13 +10,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Trash2, PlusCircle, ArrowLeft, UploadCloud, BoxSelect } from 'lucide-react';
-import { tags as allTags } from '@/lib/data';
+import { Trash2, PlusCircle, ArrowLeft, UploadCloud, BoxSelect, Tag } from 'lucide-react';
+import { tags as initialTags } from '@/lib/data';
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/hooks/use-toast';
 
 const choiceSchema = z.object({
     id: z.string().optional(),
@@ -84,9 +85,62 @@ function ImageUpload({ label, onFileChange }: { label: string, onFileChange: (fi
     );
 }
 
+function TagCreator({ onTagCreated }: { onTagCreated: (newTag: { id: string, name: string }) => void }) {
+    const [showInput, setShowInput] = useState(false);
+    const [newTagName, setNewTagName] = useState("");
+    const { toast } = useToast();
+
+    const handleCreateTag = () => {
+        if (newTagName.trim() === "") {
+            toast({
+                title: "Error",
+                description: "Tag name cannot be empty.",
+                variant: "destructive",
+            });
+            return;
+        }
+        // In a real app, you'd also check for duplicate tag names.
+        const newTag = {
+            id: `t${Date.now()}`, // Simple unique ID generation
+            name: newTagName.trim(),
+        };
+        onTagCreated(newTag);
+        toast({
+            title: "Tag Created",
+            description: `Successfully created tag: ${newTag.name}`,
+        });
+        setNewTagName("");
+        setShowInput(false);
+    };
+
+    if (!showInput) {
+        return (
+            <Button type="button" variant="outline" size="sm" onClick={() => setShowInput(true)}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add New Tag
+            </Button>
+        );
+    }
+
+    return (
+        <div className="flex items-center gap-2">
+            <Input
+                value={newTagName}
+                onChange={(e) => setNewTagName(e.target.value)}
+                placeholder="Enter new tag name"
+                className="h-9"
+            />
+            <Button type="button" size="sm" onClick={handleCreateTag}>Save Tag</Button>
+            <Button type="button" variant="ghost" size="sm" onClick={() => setShowInput(false)}>Cancel</Button>
+        </div>
+    );
+}
+
 
 export default function NewQuestionPage() {
     const router = useRouter();
+    const { toast } = useToast();
+    const [allTags, setAllTags] = useState(initialTags);
+
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -111,8 +165,10 @@ export default function NewQuestionPage() {
 
     const onSubmit = (data: FormData) => {
         console.log("Form submitted", data);
-        // In a real app, you would handle file upload and save the data
-        alert('Question(s) created successfully! (Check console for data)');
+        toast({
+            title: "Question(s) Created!",
+            description: "Your new questions have been saved.",
+        });
         router.push('/admin/questions');
     };
 
@@ -223,13 +279,16 @@ export default function NewQuestionPage() {
                              </div>
 
                              {/* Tags */}
-                             <div>
-                                 <Label>Tags</Label>
+                             <div className="space-y-4">
+                                 <div className="flex items-center justify-between">
+                                    <Label>Tags</Label>
+                                    <TagCreator onTagCreated={(newTag) => setAllTags(prev => [...prev, newTag])} />
+                                 </div>
                                  <Controller
                                     control={form.control}
                                     name={`questions.${index}.tags`}
                                     render={({ field }) => (
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                                             {allTags.map(tag => (
                                                 <Label key={tag.id} className="flex items-center gap-2 p-2 rounded-md border bg-background hover:bg-secondary cursor-pointer has-[:checked]:bg-primary has-[:checked]:text-primary-foreground">
                                                     <Input type="checkbox" value={tag.id} checked={field.value?.includes(tag.id)}
@@ -237,6 +296,7 @@ export default function NewQuestionPage() {
                                                             const newValues = e.target.checked ? [...(field.value || []), tag.id] : field.value?.filter(id => id !== tag.id);
                                                             field.onChange(newValues);
                                                         }} className="h-4 w-4" />
+                                                    <Tag className="mr-1 h-3 w-3"/>
                                                     {tag.name}
                                                 </Label>
                                             ))}
@@ -266,3 +326,5 @@ export default function NewQuestionPage() {
         </main>
     );
 }
+
+    
