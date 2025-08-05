@@ -49,7 +49,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
-import { tags as initialTags } from "@/lib/data";
+import { tags as initialTags, questions } from "@/lib/data";
 import type { Tag } from "@/lib/types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -72,6 +72,10 @@ export default function TagsPage() {
     resolver: zodResolver(tagSchema),
     defaultValues: { name: "" },
   });
+
+  const getQuestionCountForTag = (tagId: string) => {
+    return questions.filter(q => q.tags.includes(tagId)).length;
+  };
 
   const handleEditClick = (tag: Tag) => {
     form.setValue("name", tag.name);
@@ -206,6 +210,7 @@ export default function TagsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Tag Name</TableHead>
+                  <TableHead>Questions</TableHead>
                   <TableHead className="hidden md:table-cell">Tag ID</TableHead>
                   <TableHead>
                     <span className="sr-only">Actions</span>
@@ -216,6 +221,7 @@ export default function TagsPage() {
                 {tags.map((tag) => (
                   <TableRow key={tag.id}>
                     <TableCell className="font-medium">{tag.name}</TableCell>
+                    <TableCell>{getQuestionCountForTag(tag.id)}</TableCell>
                     <TableCell className="hidden md:table-cell font-mono text-xs">
                       {tag.id}
                     </TableCell>
