@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Clock } from "lucide-react";
 import { tests } from "@/lib/data";
-import type { Test } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -16,65 +15,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/header";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-
-
-function TestStartDialog({ test, children }: { test: Test, children: React.ReactNode }) {
-    const router = useRouter();
-    const [open, setOpen] = useState(false);
-
-    const handleStart = (useTimer: boolean) => {
-        const params = new URLSearchParams();
-        if (useTimer && test.duration) {
-            params.append('timer', test.duration.toString());
-        }
-        router.push(`/mock-test/${test.id}?${params.toString()}`);
-    }
-
-    return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Start "{test.title}"</DialogTitle>
-                    <DialogDescription>{test.description}</DialogDescription>
-                </DialogHeader>
-                <div className="text-center py-4">
-                    {test.duration ? (
-                        <div className="text-lg">
-                           This test has a recommended time limit of <span className="font-bold">{test.duration} minutes</span>.
-                        </div>
-                    ) : (
-                        <div className="text-lg">
-                            This test does not have a time limit.
-                        </div>
-                    )}
-                </div>
-                <DialogFooter className="sm:justify-around">
-                    {test.duration && (
-                        <Button onClick={() => handleStart(true)} size="lg">
-                            <Clock className="mr-2 h-5 w-5" />
-                            Start with Timer
-                        </Button>
-                    )}
-                     <Button onClick={() => handleStart(false)} size="lg" variant={test.duration ? 'outline' : 'default'}>
-                        Start without Timer
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    )
-}
 
 export default function Home() {
   return (
@@ -115,11 +55,11 @@ export default function Home() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                    <TestStartDialog test={test}>
-                        <Button className="w-full">
+                    <Button className="w-full" asChild>
+                        <Link href={`/mock-test/${test.id}`}>
                             Start Mock Test <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                    </TestStartDialog>
+                        </Link>
+                    </Button>
                 </CardFooter>
               </Card>
             ))}

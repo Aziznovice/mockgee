@@ -27,7 +27,6 @@ interface QuizInterfaceProps {
   questionGroups: QuestionGroup[];
   sessionId: string;
   initialAnswers?: UserAnswers;
-  timerDuration?: number; // in minutes
 }
 
 type QuizItem = { type: 'question', data: Question } | { type: 'group', data: QuestionGroup, questions: Question[] };
@@ -38,16 +37,16 @@ function formatTime(seconds: number) {
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
-export function QuizInterface({ test, questions, questionGroups, sessionId, initialAnswers = {}, timerDuration }: QuizInterfaceProps) {
+export function QuizInterface({ test, questions, questionGroups, sessionId, initialAnswers = {} }: QuizInterfaceProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<UserAnswers>(initialAnswers);
   const [view, setView] = useState<"card" | "form">("card");
   const [visitedIndices, setVisitedIndices] = useState<Set<number>>(new Set([0]));
-  
-  const initialTime = timerDuration ? timerDuration * 60 : null;
-  const [timeLeft, setTimeLeft] = useState<number | null>(initialTime);
+  const [quizStarted, setQuizStarted] = useState(false);
+
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const allQuestions = useMemo(() => {
@@ -81,11 +80,18 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
     router.push(`/mock-test/${test.id}/results?${newSearchParams.toString()}`);
   };
 
+  const startQuiz = (useTimer: boolean) => {
+    if (useTimer && test.duration) {
+        setTimeLeft(test.duration * 60);
+    }
+    setQuizStarted(true);
+  }
+
   useEffect(() => {
       if (timeLeft === 0) {
           handleSubmit();
       }
-      if (timeLeft !== null && timeLeft > 0) {
+      if (quizStarted && timeLeft !== null && timeLeft > 0) {
           timerRef.current = setInterval(() => {
               setTimeLeft(prev => (prev !== null ? prev - 1 : null));
           }, 1000);
@@ -93,7 +99,7 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
       return () => {
           if(timerRef.current) clearInterval(timerRef.current);
       }
-  }, [timeLeft]);
+  }, [timeLeft, quizStarted]);
 
   useEffect(() => {
     setVisitedIndices(prev => new Set(prev).add(currentQuestionIndex));
@@ -174,6 +180,41 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
             </CardContent>
         </Card>
     );
+  }
+
+  if (!quizStarted) {
+    return (
+        <div className="container mx-auto flex justify-center items-center h-[calc(100vh-200px)]">
+            <Card className="max-w-md w-full text-center">
+                <CardHeader>
+                    <CardTitle>Start "{test.title}"</CardTitle>
+                    <CardDescription>{test.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                     {test.duration ? (
+                        <div className="text-lg">
+                           This test has a recommended time limit of <span className="font-bold">{test.duration} minutes</span>.
+                        </div>
+                    ) : (
+                        <div className="text-lg">
+                            This test does not have a time limit.
+                        </div>
+                    )}
+                </CardContent>
+                <CardFooter className="sm:justify-around flex-col sm:flex-row gap-2">
+                    {test.duration && (
+                        <Button onClick={() => startQuiz(true)} size="lg">
+                            <Clock className="mr-2 h-5 w-5" />
+                            Start with Timer
+                        </Button>
+                    )}
+                     <Button onClick={() => startQuiz(false)} size="lg" variant={test.duration ? 'outline' : 'default'}>
+                        Start without Timer
+                    </Button>
+                </CardFooter>
+            </Card>
+        </div>
+    )
   }
 
   if (!currentQuestion) {
