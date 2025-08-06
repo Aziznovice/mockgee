@@ -45,7 +45,7 @@ export function ResultsDisplay({ test, questions, userAnswers, sessionId }: Resu
           <CardDescription>You've completed the mock test!</CardDescription>
         </CardHeader>
         <CardContent className="text-center">
-          <div className="text-6xl font-bold font-headline text-accent">{scorePercentage}%</div>
+          <div className="text-6xl font-bold font-headline text-primary">{scorePercentage}%</div>
           <p className="text-xl text-muted-foreground mt-2">You answered {score} out of {questions.length} questions correctly.</p>
           <div className="mt-6 flex gap-4 justify-center">
              <Button asChild>
@@ -72,33 +72,35 @@ export function ResultsDisplay({ test, questions, userAnswers, sessionId }: Resu
             const userAnswerText = getChoiceText(question, userAnswerId);
 
             return (
-                <Card key={question.id} className={cn("overflow-hidden", isCorrect ? "border-correct" : "border-incorrect")}>
+                <Card key={question.id} className={cn("overflow-hidden", isCorrect ? "border-green-500" : "border-destructive")}>
                     <CardHeader>
                         <CardTitle className="flex items-start gap-4 text-lg">
-                            {isCorrect ? <CheckCircle className="h-6 w-6 text-correct flex-shrink-0 mt-1"/> : <XCircle className="h-6 w-6 text-incorrect flex-shrink-0 mt-1"/>}
+                            {isCorrect ? <CheckCircle className="h-6 w-6 text-green-500 flex-shrink-0 mt-1"/> : <XCircle className="h-6 w-6 text-destructive flex-shrink-0 mt-1"/>}
                             <span>{index + 1}. {question.text}</span>
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-2 text-sm">
-                            <p>Your answer: <span className={cn("font-semibold", isCorrect ? "text-correct" : "text-incorrect")}>{userAnswerText}</span></p>
+                            <p>Your answer: <span className={cn("font-semibold", isCorrect ? "text-green-600" : "text-destructive")}>{userAnswerText}</span></p>
                             {!isCorrect && (
-                                <p>Correct answer: <span className="font-semibold text-correct">{correctChoiceText}</span></p>
+                                <p>Correct answer: <span className="font-semibold text-green-600">{correctChoiceText}</span></p>
                             )}
                         </div>
-                        <Accordion type="single" collapsible className="w-full mt-4">
-                            <AccordionItem value="explanation" className="border-none">
-                                <AccordionTrigger className="text-explanation-foreground hover:no-underline p-2 rounded-md bg-explanation/40">
-                                    <div className="flex items-center gap-2">
-                                        <Lightbulb className="h-4 w-4"/>
-                                        Show Explanation
-                                    </div>
-                                </AccordionTrigger>
-                                <AccordionContent className="mt-2 p-4 rounded-md bg-explanation border border-explanation-border">
-                                    <p className="text-explanation-foreground">{question.explanation}</p>
-                                </AccordionContent>
-                            </AccordionItem>
-                        </Accordion>
+                        {question.explanation && (
+                            <Accordion type="single" collapsible className="w-full mt-4">
+                                <AccordionItem value="explanation" className="border-none">
+                                    <AccordionTrigger className="text-sky-700 hover:no-underline p-2 rounded-md bg-sky-50 hover:bg-sky-100">
+                                        <div className="flex items-center gap-2">
+                                            <Lightbulb className="h-4 w-4"/>
+                                            Show Explanation
+                                        </div>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="mt-2 p-4 rounded-md bg-sky-50 border border-sky-200">
+                                        <p className="text-sky-800">{question.explanation}</p>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
+                        )}
                     </CardContent>
                 </Card>
             )

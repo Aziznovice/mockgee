@@ -30,6 +30,7 @@ const subjectSchema = z.object({
 const testFormSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
+  duration: z.coerce.number().min(0, 'Duration cannot be negative').optional(),
   totalQuestions: z.coerce.number().min(1, "Total questions must be at least 1"),
   useSubjects: z.boolean(),
   subjects: z.array(subjectSchema).optional(),
@@ -100,6 +101,7 @@ export default function EditTestPage() {
     defaultValues: {
       title: existingTest?.title || '',
       description: existingTest?.description || '',
+      duration: existingTest?.duration || 0,
       useSubjects: useSubjects,
       subjects: existingTest?.subjects || [],
       tags: existingTest?.tags || [],
@@ -171,7 +173,14 @@ export default function EditTestPage() {
               <Textarea id="description" {...form.register('description')} />
                {form.formState.errors.description && <p className="text-red-500 text-sm">{form.formState.errors.description.message}</p>}
             </div>
-            <ImageUpload initialImageUrl={existingTest.imageUrl} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <ImageUpload initialImageUrl={existingTest.imageUrl} />
+                <div>
+                    <Label htmlFor="duration">Test Duration (minutes)</Label>
+                    <Input id="duration" type="number" {...form.register('duration')} placeholder="e.g., 60"/>
+                    <p className="text-xs text-muted-foreground mt-1">Leave blank or 0 for no timer.</p>
+                </div>
+            </div>
           </CardContent>
         </Card>
 

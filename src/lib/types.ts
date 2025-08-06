@@ -4,7 +4,7 @@ export interface Choice {
 }
 
 export interface Question {
-  id: string;
+  id:string;
   text: string;
   choices: Choice[];
   correctChoiceId: string;
@@ -41,6 +41,7 @@ export interface Test {
   description: string;
   imageUrl: string;
   allQuestionIds: string[]; 
+  duration?: number; // Duration in minutes
   
   // New structure for creating tests
   subjects?: TestSubject[];

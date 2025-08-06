@@ -1,8 +1,8 @@
 
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { Question, Test, UserAnswers, QuestionGroup } from "@/lib/types";
 import {
   Card,
@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ArrowRight, CheckSquare, LayoutGrid, Rows3, BoxSelect } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckSquare, LayoutGrid, Rows3, BoxSelect, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { ScrollArea } from "./ui/scroll-area";
@@ -27,17 +27,28 @@ interface QuizInterfaceProps {
   questionGroups: QuestionGroup[];
   sessionId: string;
   initialAnswers?: UserAnswers;
+  timerDuration?: number; // in minutes
 }
 
 type QuizItem = { type: 'question', data: Question } | { type: 'group', data: QuestionGroup, questions: Question[] };
 
-export function QuizInterface({ test, questions, questionGroups, sessionId, initialAnswers = {} }: QuizInterfaceProps) {
+function formatTime(seconds: number) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+}
+
+export function QuizInterface({ test, questions, questionGroups, sessionId, initialAnswers = {}, timerDuration }: QuizInterfaceProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<UserAnswers>(initialAnswers);
   const [view, setView] = useState<"card" | "form">("card");
   const [visitedIndices, setVisitedIndices] = useState<Set<number>>(new Set([0]));
-
+  
+  const initialTime = timerDuration ? timerDuration * 60 : null;
+  const [timeLeft, setTimeLeft] = useState<number | null>(initialTime);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const allQuestions = useMemo(() => {
     return questions.sort((a,b) => (a.groupId || '').localeCompare(b.groupId || ''));
@@ -60,6 +71,29 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
 
   const currentQuestion = allQuestions[currentQuestionIndex];
   const currentGroup = currentQuestion?.groupId ? questionGroups.find(g => g.id === currentQuestion.groupId) : null;
+  
+  const handleSubmit = () => {
+    const answersQuery = encodeURIComponent(JSON.stringify(answers));
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    newSearchParams.set('answers', answersQuery);
+    newSearchParams.set('session', sessionId);
+    newSearchParams.delete('timer'); // Timer is done
+    router.push(`/mock-test/${test.id}/results?${newSearchParams.toString()}`);
+  };
+
+  useEffect(() => {
+      if (timeLeft === 0) {
+          handleSubmit();
+      }
+      if (timeLeft !== null && timeLeft > 0) {
+          timerRef.current = setInterval(() => {
+              setTimeLeft(prev => (prev !== null ? prev - 1 : null));
+          }, 1000);
+      }
+      return () => {
+          if(timerRef.current) clearInterval(timerRef.current);
+      }
+  }, [timeLeft]);
 
   useEffect(() => {
     setVisitedIndices(prev => new Set(prev).add(currentQuestionIndex));
@@ -81,10 +115,6 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
     }
   };
 
-  const handleSubmit = () => {
-    const answersQuery = encodeURIComponent(JSON.stringify(answers));
-    router.push(`/mock-test/${test.id}/results?session=${sessionId}&answers=${answersQuery}`);
-  };
 
   const renderSingleQuestionForm = (question: Question, index?: number) => (
     <Card key={question.id} className="shadow-lg rounded-xl">
@@ -146,6 +176,10 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
     );
   }
 
+  if (!currentQuestion) {
+      return <div>Loading questions...</div>
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
         <div className="w-full max-w-7xl mx-auto">
@@ -156,15 +190,23 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
                         Question {currentQuestionIndex + 1} of {allQuestions.length}
                     </p>
                 </div>
-                <div className="flex items-center gap-1 rounded-md bg-muted p-1">
-                    <Button variant={view === 'card' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7" onClick={() => setView('card')}>
-                        <Rows3 className="h-4 w-4"/>
-                        <span className="sr-only">Card View</span>
-                    </Button>
-                    <Button variant={view === 'form' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7" onClick={() => setView('form')}>
-                        <LayoutGrid className="h-4 w-4"/>
-                        <span className="sr-only">Form View</span>
-                    </Button>
+                <div className="flex items-center gap-4">
+                    {timeLeft !== null && (
+                        <div className={cn("text-lg font-semibold flex items-center gap-2 p-2 rounded-md", timeLeft < 60 && "text-destructive")}>
+                            <Clock className="h-5 w-5" />
+                           {formatTime(timeLeft)}
+                        </div>
+                    )}
+                    <div className="flex items-center gap-1 rounded-md bg-muted p-1">
+                        <Button variant={view === 'card' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7" onClick={() => setView('card')}>
+                            <Rows3 className="h-4 w-4"/>
+                            <span className="sr-only">Card View</span>
+                        </Button>
+                        <Button variant={view === 'form' ? 'secondary' : 'ghost'} size="icon" className="h-7 w-7" onClick={() => setView('form')}>
+                            <LayoutGrid className="h-4 w-4"/>
+                            <span className="sr-only">Form View</span>
+                        </Button>
+                    </div>
                 </div>
             </div>
 
@@ -288,5 +330,3 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
     </div>
   );
 }
-
-    

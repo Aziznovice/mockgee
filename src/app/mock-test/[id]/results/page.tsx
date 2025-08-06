@@ -37,7 +37,7 @@ export default function ResultsPage({
   return (
     <div className="flex min-h-screen w-full flex-col">
       <Header />
-      <main className="flex-1 pt-8">
+      <main className="flex-1 pt-8 bg-muted/40">
         <ResultsDisplay test={test} questions={questions} userAnswers={userAnswers} sessionId={sessionId} />
       </main>
     </div>

@@ -123,6 +123,7 @@ export const tests: Test[] = [
     imageUrl: 'https://placehold.co/600x400',
     tags: ['t1', 't2', 't3'],
     questionCount: 4,
+    duration: 5,
   },
   {
     id: '2',
@@ -132,6 +133,7 @@ export const tests: Test[] = [
     imageUrl: 'https://placehold.co/600x400',
     tags: ['t4'],
     questionCount: 1,
+    duration: 2,
   },
   {
     id: '3',
@@ -139,6 +141,7 @@ export const tests: Test[] = [
     description: 'A test focused on reading comprehension and critical thinking, with grouped questions.',
     imageUrl: 'https://placehold.co/600x400',
     allQuestionIds: ['q4', 'q6', 'q7'], // all questions that will be available.
+    duration: 10,
     subjects: [
         {
             id: 's1',

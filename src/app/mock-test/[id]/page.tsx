@@ -23,6 +23,7 @@ export default function MockTestPage({ params, searchParams }: { params: { id: s
 
   const questions = getQuestionsForSession(sessionId);
   const questionGroups = getQuestionGroupsForSession(sessionId);
+  const timerDuration = typeof searchParams?.timer === 'string' ? parseInt(searchParams.timer, 10) : undefined;
   let initialAnswers: UserAnswers = {};
 
   try {
@@ -44,10 +45,9 @@ export default function MockTestPage({ params, searchParams }: { params: { id: s
             questionGroups={questionGroups} 
             initialAnswers={initialAnswers} 
             sessionId={sessionId} 
+            timerDuration={timerDuration}
         />
       </main>
     </div>
   );
 }
-
-    

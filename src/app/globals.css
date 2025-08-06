@@ -25,15 +25,6 @@
     --ring: 210 10% 70%;
     --radius: 0.8rem;
 
-    /* Custom QuizWise Colors */
-    --correct: 146 50% 36%;
-    --correct-foreground: 0 0% 100%;
-    --incorrect: 0 53% 58%;
-    --incorrect-foreground: 0 0% 100%;
-    --explanation-background: 207 100% 96%;
-    --explanation-foreground: 207 44% 49%;
-    --explanation-border: 207 44% 85%;
-
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -62,15 +53,6 @@
     --input: 210 10% 25%;
     --ring: 210 10% 60%;
     
-    /* Custom QuizWise Colors */
-    --correct: 146 50% 40%;
-    --correct-foreground: 0 0% 100%;
-    --incorrect: 0 60% 50%;
-    --incorrect-foreground: 0 0% 100%;
-    --explanation-background: 207 44% 15%;
-    --explanation-foreground: 207 44% 80%;
-    --explanation-border: 207 44% 25%;
-
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
