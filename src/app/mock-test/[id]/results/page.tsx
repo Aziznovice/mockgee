@@ -1,3 +1,4 @@
+
 import { notFound } from "next/navigation";
 import { getTestById, getQuestionsForSession } from "@/lib/data";
 import { Header } from "@/components/header";
@@ -35,9 +36,9 @@ export default function ResultsPage({
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
+    <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <Header />
-      <main className="flex-1 pt-8 bg-muted/40">
+      <main className="flex-1 py-8">
         <ResultsDisplay test={test} questions={questions} userAnswers={userAnswers} sessionId={sessionId} />
       </main>
     </div>

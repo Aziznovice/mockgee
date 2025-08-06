@@ -35,9 +35,9 @@ export default function MockTestPage({ params, searchParams }: { params: { id: s
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
+    <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <Header />
-      <main className="flex-1 pt-8 bg-muted/40">
+      <main className="flex-1">
         <QuizInterface 
             test={test} 
             questions={questions} 

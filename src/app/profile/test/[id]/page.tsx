@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { notFound, useParams } from "next/navigation";
@@ -115,7 +116,7 @@ export default function TestStatsPage() {
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <Header />
-      <main className="flex-1 p-4 sm:p-6">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8">
         <div className="mx-auto max-w-5xl space-y-6">
           <div>
             <Button asChild variant="outline" size="sm">

@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Question, Test, UserAnswers } from "@/lib/types";
@@ -9,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Lightbulb, Repeat } from "lucide-react";
+import { CheckCircle, XCircle, Lightbulb, Repeat, Home } from "lucide-react";
 import Link from "next/link";
 import {
   Accordion,
@@ -38,7 +39,7 @@ export function ResultsDisplay({ test, questions, userAnswers, sessionId }: Resu
   }
 
   return (
-    <div className="flex flex-col items-center justify-center p-4">
+    <div className="container mx-auto flex flex-col items-center justify-center p-4">
       <Card className="w-full max-w-3xl shadow-2xl rounded-xl mb-8">
         <CardHeader className="items-center text-center">
           <CardTitle className="text-3xl">Results for {test.title}</CardTitle>
@@ -56,7 +57,8 @@ export function ResultsDisplay({ test, questions, userAnswers, sessionId }: Resu
              </Button>
              <Button asChild variant="outline">
                 <Link href="/">
-                    Back to Mock Tests
+                    <Home className="mr-2 h-4 w-4"/>
+                    Back to Home
                 </Link>
              </Button>
           </div>
