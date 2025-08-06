@@ -291,12 +291,20 @@ export default function Home() {
 
                         {/* CTA Buttons */}
                         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-                            <button className="bg-white text-indigo-900 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl">
-                                Try Sample Questions Free
+                            <button 
+                                onClick={() => {
+                                    document.getElementById('exam-categories')?.scrollIntoView({ 
+                                        behavior: 'smooth',
+                                        block: 'start'
+                                    });
+                                }}
+                                className="bg-white text-indigo-900 px-10 py-4 rounded-xl font-semibold text-lg hover:bg-green-100 transition-all transform hover:scale-105 shadow-xl"
+                            >
+                                Start Now
                             </button>
-                            <button className="border-2 border-white/30 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/10 transition-all backdrop-blur-sm">
+                            {/* <button className="border-2 border-white/30 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/10 transition-all backdrop-blur-sm">
                                 Watch Demo
-                            </button>
+                            </button> */}
                         </div>
 
                         {/* Enhanced Stats Grid */}
@@ -354,7 +362,7 @@ export default function Home() {
                                 <h3 className="text-xl font-bold text-gray-900 mb-2">🎯 Try Before You Subscribe!</h3>
                                 <p className="text-gray-600">Get instant access to sample questions from all exam categories. No registration required.</p>
                             </div>
-                            <div className="flex space-x-3">
+                            <div id="exam-categories" className="flex space-x-3">
                                 <button className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-sm">
                                     Start Free Trial
                                 </button>
