@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -187,12 +188,12 @@ const stats = [
 ];
 
 const examCategories = [
-    { title: "Civil Service Exam", subjects: 8, questions: "2,500+", badge: "Most Popular", color: "slate", description: "Professional & Sub-professional levels. Pass rate: 14-18%" },
-    { title: "Nursing Licensure Exam", subjects: 12, questions: "4,200+", badge: "High Demand", color: "teal", description: "Requires ≥75% general average for passing" },
-    { title: "CPA Board Exam", subjects: 10, questions: "3,800+", badge: "Professional", color: "violet", description: "Certified Public Accountant licensure examination" },
-    { title: "Bar Examination", subjects: 8, questions: "3,200+", badge: "Premium", color: "amber", description: "Philippine Bar Exam for law practitioners" },
-    { title: "Agriculturist Board Exam", subjects: 15, questions: "4,500+", badge: "Challenging", color: "emerald", description: "Pass rate: 29-30%. Comprehensive agriculture review" },
-    { title: "Engineering Board Exams", subjects: 20, questions: "6,000+", badge: "Popular", color: "indigo", description: "Civil, Mechanical, Electrical & Electronics Engineering" },
+    { id: '1', title: "Civil Service Exam", subjects: 8, questions: "2,500+", badge: "Most Popular", color: "slate", description: "Professional & Sub-professional levels. Pass rate: 14-18%" },
+    { id: '2', title: "Nursing Licensure Exam", subjects: 12, questions: "4,200+", badge: "High Demand", color: "teal", description: "Requires ≥75% general average for passing" },
+    { id: '3', title: "CPA Board Exam", subjects: 10, questions: "3,800+", badge: "Professional", color: "violet", description: "Certified Public Accountant licensure examination" },
+    { id: '3', title: "Bar Examination", subjects: 8, questions: "3,200+", badge: "Premium", color: "amber", description: "Philippine Bar Exam for law practitioners" },
+    { id: '3', title: "Agriculturist Board Exam", subjects: 15, questions: "4,500+", badge: "Challenging", color: "emerald", description: "Pass rate: 29-30%. Comprehensive agriculture review" },
+    { id: '1', title: "Engineering Board Exams", subjects: 20, questions: "6,000+", badge: "Popular", color: "indigo", description: "Civil, Mechanical, Electrical & Electronics Engineering" },
 ];
 
 const features = [
@@ -230,7 +231,7 @@ export default function Home() {
                         {/* Main heading with better typography */}
                         <div className="mb-6">
                             <span className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium text-indigo-200 mb-4">
-                                � Philippines' Leading Exam Prep Platform
+                                 Philippines' Leading Exam Prep Platform
                             </span>
                             <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
                                 Master Your{' '}
@@ -328,16 +329,18 @@ export default function Home() {
                                     <span className="text-sm text-gray-500">{exam.subjects} subjects • {exam.questions} questions</span>
                                     <span className="text-sm font-medium text-green-600">Free samples available</span>
                                 </div>
-                                <button className={`w-full ${
-                                    exam.color === 'slate' ? 'bg-slate-600 hover:bg-slate-700' :
-                                    exam.color === 'teal' ? 'bg-teal-600 hover:bg-teal-700' :
-                                    exam.color === 'violet' ? 'bg-violet-600 hover:bg-violet-700' :
-                                    exam.color === 'amber' ? 'bg-amber-600 hover:bg-amber-700' :
-                                    exam.color === 'emerald' ? 'bg-emerald-600 hover:bg-emerald-700' :
-                                    'bg-indigo-600 hover:bg-indigo-700'
-                                } text-white py-2 px-4 rounded-lg font-medium transition-colors`}>
-                                    Try Sample Questions
-                                </button>
+                                <Link href={`/mock-test/${exam.id}`} passHref>
+                                    <Button className={`w-full ${
+                                        exam.color === 'slate' ? 'bg-slate-600 hover:bg-slate-700' :
+                                        exam.color === 'teal' ? 'bg-teal-600 hover:bg-teal-700' :
+                                        exam.color === 'violet' ? 'bg-violet-600 hover:bg-violet-700' :
+                                        exam.color === 'amber' ? 'bg-amber-600 hover:bg-amber-700' :
+                                        exam.color === 'emerald' ? 'bg-emerald-600 hover:bg-emerald-700' :
+                                        'bg-indigo-600 hover:bg-indigo-700'
+                                    } text-white py-2 px-4 rounded-lg font-medium transition-colors`}>
+                                        Take the Test
+                                    </Button>
+                                </Link>
                             </div>
                         ))}
                     </div>
