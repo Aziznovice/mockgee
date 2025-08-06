@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
+import { TestOverview } from "./test-overview";
 
 interface QuizInterfaceProps {
   test: Test;
@@ -183,38 +184,7 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
   }
 
   if (!quizStarted) {
-    return (
-        <div className="container mx-auto flex justify-center items-center h-[calc(100vh-200px)]">
-            <Card className="max-w-md w-full text-center">
-                <CardHeader>
-                    <CardTitle>Start "{test.title}"</CardTitle>
-                    <CardDescription>{test.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                     {test.duration ? (
-                        <div className="text-lg">
-                           This test has a recommended time limit of <span className="font-bold">{test.duration} minutes</span>.
-                        </div>
-                    ) : (
-                        <div className="text-lg">
-                            This test does not have a time limit.
-                        </div>
-                    )}
-                </CardContent>
-                <CardFooter className="sm:justify-around flex-col sm:flex-row gap-2">
-                    {test.duration && (
-                        <Button onClick={() => startQuiz(true)} size="lg">
-                            <Clock className="mr-2 h-5 w-5" />
-                            Start with Timer
-                        </Button>
-                    )}
-                     <Button onClick={() => startQuiz(false)} size="lg" variant={test.duration ? 'outline' : 'default'}>
-                        Start without Timer
-                    </Button>
-                </CardFooter>
-            </Card>
-        </div>
-    )
+    return <TestOverview test={test} onStart={startQuiz} />;
   }
 
   if (!currentQuestion) {
