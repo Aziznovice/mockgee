@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, CheckCircle, Lightbulb, BarChart2, BookOpen, Clock, Linkedin, Facebook, Twitter, Instagram, Menu } from "lucide-react";
+import { ArrowRight, CheckCircle, Lightbulb, BarChart2, BookOpen, Clock, Linkedin, Facebook, Twitter, Instagram, Menu, View } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -376,7 +376,15 @@ export default function Home() {
 
                 {/* Exam Categories */}
                 <section className="mb-8">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-6">Try Sample Questions by Exam Category</h3>
+                    <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-2xl font-bold text-gray-900">Mock Test</h3>
+                        <Link href="/mock-tests" passHref>
+                            <Button variant="outline" className="flex items-center gap-2">
+                                <View className="h-4 w-4" />
+                                View All
+                            </Button>
+                        </Link>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {examCategories.map((exam) => (
                             <div key={exam.title} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition-all duration-300 hover:transform hover:translate-y-[-4px] hover:shadow-lg">
