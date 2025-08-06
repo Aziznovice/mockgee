@@ -3,7 +3,7 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import type { Question, Test, UserAnswers, QuestionGroup } from "@/lib/types";
+import type { Question, Test, UserAnswers, QuestionGroup, Highlight } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -15,12 +15,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ArrowRight, CheckSquare, LayoutGrid, Rows3, BoxSelect, Clock } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckSquare, LayoutGrid, Rows3, BoxSelect, Clock, Highlighter } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 import { TestOverview } from "./test-overview";
+import { Switch } from "./ui/switch";
+import { TextHighlighter } from "./text-highlighter";
 
 interface QuizInterfaceProps {
   test: Test;
@@ -31,6 +33,7 @@ interface QuizInterfaceProps {
 }
 
 type QuizItem = { type: 'question', data: Question } | { type: 'group', data: QuestionGroup, questions: Question[] };
+type HighlightsState = Record<string, Highlight[]>;
 
 function formatTime(seconds: number) {
     const mins = Math.floor(seconds / 60);
@@ -46,6 +49,9 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
   const [view, setView] = useState<"card" | "form">("card");
   const [visitedIndices, setVisitedIndices] = useState<Set<number>>(new Set([0]));
   const [quizStarted, setQuizStarted] = useState(false);
+
+  const [isHighlightMode, setIsHighlightMode] = useState(false);
+  const [highlights, setHighlights] = useState<HighlightsState>({});
 
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -118,9 +124,13 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
 
   const handleBack = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev - 1);
+      setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
+
+  const handleHighlightChange = (groupId: string, newHighlights: Highlight[]) => {
+      setHighlights(prev => ({ ...prev, [groupId]: newHighlights }));
+  }
 
 
   const renderSingleQuestionForm = (question: Question, index?: number) => (
@@ -163,11 +173,29 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
     return (
         <Card key={group.id} className="shadow-lg rounded-xl overflow-hidden">
             <CardHeader className="bg-muted">
-                <CardTitle className="flex items-center gap-2 text-xl">
-                    <BoxSelect className="h-6 w-6 text-primary" />
-                    Reference Material
-                </CardTitle>
-                {group.referenceText && <CardDescription className="pt-2">{group.referenceText}</CardDescription>}
+                 <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-xl">
+                        <BoxSelect className="h-6 w-6 text-primary" />
+                        Reference Material
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                        <Label htmlFor="highlight-mode-form" className="flex items-center gap-1.5 text-sm">
+                            <Highlighter className="h-4 w-4"/>
+                            Highlight Mode
+                        </Label>
+                        <Switch id="highlight-mode-form" checked={isHighlightMode} onCheckedChange={setIsHighlightMode} />
+                    </div>
+                </div>
+                {group.referenceText && (
+                    <CardDescription className="pt-4">
+                         <TextHighlighter
+                            text={group.referenceText}
+                            highlights={highlights[group.id] || []}
+                            isHighlightingEnabled={isHighlightMode}
+                            onHighlightsChange={(newHighlights) => handleHighlightChange(group.id, newHighlights)}
+                        />
+                    </CardDescription>
+                )}
             </CardHeader>
             <CardContent className="p-0">
                  {group.referenceImageUrl && (
@@ -227,10 +255,16 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
                         <div className="lg:order-first">
                              <Card className="shadow-xl rounded-xl sticky top-24">
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <BoxSelect className="h-5 w-5 text-primary"/>
-                                        Reference Material
-                                    </CardTitle>
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="flex items-center gap-2">
+                                            <BoxSelect className="h-5 w-5 text-primary"/>
+                                            Reference Material
+                                        </CardTitle>
+                                         <div className="flex items-center gap-2">
+                                            <Label htmlFor="highlight-mode-card" className="text-xs">Highlight</Label>
+                                            <Switch id="highlight-mode-card" checked={isHighlightMode} onCheckedChange={setIsHighlightMode} />
+                                        </div>
+                                    </div>
                                 </CardHeader>
                                 <CardContent>
                                     {currentGroup.referenceImageUrl && (
@@ -240,7 +274,12 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
                                     )}
                                     {currentGroup.referenceText && (
                                         <ScrollArea className="h-[400px]">
-                                            <p className="text-sm leading-relaxed whitespace-pre-wrap">{currentGroup.referenceText}</p>
+                                            <TextHighlighter
+                                                text={currentGroup.referenceText}
+                                                highlights={highlights[currentGroup.id] || []}
+                                                isHighlightingEnabled={isHighlightMode}
+                                                onHighlightsChange={(newHighlights) => handleHighlightChange(currentGroup.id, newHighlights)}
+                                            />
                                         </ScrollArea>
                                     )}
                                 </CardContent>

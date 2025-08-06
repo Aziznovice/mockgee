@@ -70,3 +70,8 @@ export interface TestAttempt {
     status: 'completed' | 'in-progress';
     answers?: UserAnswers;
 }
+
+export interface Highlight {
+  start: number;
+  end: number;
+}
