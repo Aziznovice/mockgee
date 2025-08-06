@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import Link from "next/link";
@@ -9,6 +10,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+
 
 // Custom styles to match design.html
 const customStyles = `
@@ -189,12 +193,12 @@ const stats = [
 ];
 
 const examCategories = [
-    { id: '1', title: "Civil Service Exam", subjects: 8, questions: "2,500+", badge: "Most Popular", color: "slate", description: "Professional & Sub-professional levels. Pass rate: 14-18%" },
-    { id: '2', title: "Nursing Licensure Exam", subjects: 12, questions: "4,200+", badge: "High Demand", color: "teal", description: "Requires ≥75% general average for passing" },
-    { id: '3', title: "CPA Board Exam", subjects: 10, questions: "3,800+", badge: "Professional", color: "violet", description: "Certified Public Accountant licensure examination" },
-    { id: '3', title: "Bar Examination", subjects: 8, questions: "3,200+", badge: "Premium", color: "amber", description: "Philippine Bar Exam for law practitioners" },
-    { id: '3', title: "Agriculturist Board Exam", subjects: 15, questions: "4,500+", badge: "Challenging", color: "emerald", description: "Pass rate: 29-30%. Comprehensive agriculture review" },
-    { id: '1', title: "Engineering Board Exams", subjects: 20, questions: "6,000+", badge: "Popular", color: "indigo", description: "Civil, Mechanical, Electrical & Electronics Engineering" },
+    { id: '1', title: "Civil Service Exam", abbr: "CSE", subjects: 8, questions: "2,500+", badge: "Most Popular", color: "slate", description: "Professional & Sub-professional levels. Pass rate: 14-18%" },
+    { id: '2', title: "Nursing Licensure Exam", abbr: "NLE", subjects: 12, questions: "4,200+", badge: "High Demand", color: "teal", description: "Requires ≥75% general average for passing" },
+    { id: '3', title: "CPA Board Exam", abbr: "CPALE", subjects: 10, questions: "3,800+", badge: "Professional", color: "violet", description: "Certified Public Accountant licensure examination" },
+    { id: '3', title: "Bar Examination", abbr: "BAR", subjects: 8, questions: "3,200+", badge: "Premium", color: "amber", description: "Philippine Bar Exam for law practitioners" },
+    { id: '3', title: "Agriculturist Board Exam", abbr: "ALE", subjects: 15, questions: "4,500+", badge: "Challenging", color: "emerald", description: "Pass rate: 29-30%. Comprehensive agriculture review" },
+    { id: '1', title: "Engineering Board Exams", abbr: "ENGR", subjects: 20, questions: "6,000+", badge: "Popular", color: "indigo", description: "Civil, Mechanical, Electrical & Electronics Engineering" },
 ];
 
 const features = [
@@ -308,14 +312,33 @@ export default function Home() {
 
                         {/* Trust indicators */}
                         <div className="mt-12 pt-8 border-t border-white/20">
-                            <p className="text-indigo-200 text-sm mb-4">Trusted by professionals from:</p>
-                            <div className="flex justify-center items-center space-x-8 opacity-60">
-                                <div className="text-white font-semibold">DOH</div>
-                                <div className="text-white font-semibold">BSP</div>
-                                <div className="text-white font-semibold">BIR</div>
-                                <div className="text-white font-semibold">CSC</div>
-                                <div className="text-white font-semibold">PRC</div>
-                            </div>
+                            <p className="text-indigo-200 text-sm mb-4">Practice tests available for:</p>
+                             <Carousel
+                                opts={{
+                                    align: "start",
+                                    loop: true,
+                                    slidesToScroll: 1,
+                                }}
+                                plugins={[
+                                    Autoplay({
+                                      delay: 2000,
+                                      stopOnInteraction: false,
+                                    }),
+                                  ]}
+                                className="w-full max-w-lg mx-auto"
+                                >
+                                <CarouselContent>
+                                    {examCategories.map((exam, index) => (
+                                    <CarouselItem key={index} className="basis-1/3 md:basis-1/4 lg:basis-1/5">
+                                        <div className="p-1">
+                                            <div className="flex items-center justify-center p-2 bg-white/5 rounded-md">
+                                                <span className="text-lg font-semibold text-white">{exam.abbr}</span>
+                                            </div>
+                                        </div>
+                                    </CarouselItem>
+                                    ))}
+                                </CarouselContent>
+                             </Carousel>
                         </div>
                     </div>
                 </div>
