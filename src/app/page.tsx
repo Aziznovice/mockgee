@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import Link from "next/link";
@@ -9,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from "react";
 
 // Custom styles to match design.html
 const customStyles = `
@@ -210,6 +210,49 @@ const testimonials = [
     { name: "Anna Lopez, CPA", role: "CPA Board Passer", avatar: "AL", text: "The analytics feature showed me exactly where to focus my studies. Passed CPA Board with confidence!", color: "bg-purple-50" },
 ];
 
+
+function TypewriterEffect() {
+  const [text, setText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [loopNum, setLoopNum] = useState(0);
+  const [typingSpeed, setTypingSpeed] = useState(150);
+
+  const words = [
+    "way to success",
+    "ExamAce Philippines",
+    ...examCategories.map(exam => exam.title)
+  ];
+
+  useEffect(() => {
+    const handleType = () => {
+      const i = loopNum % words.length;
+      const fullText = words[i];
+
+      setText(isDeleting ? fullText.substring(0, text.length - 1) : fullText.substring(0, text.length + 1));
+
+      if (!isDeleting && text === fullText) {
+        // Pause at end of word
+        setTimeout(() => setIsDeleting(true), 2000);
+      } else if (isDeleting && text === '') {
+        setIsDeleting(false);
+        setLoopNum(loopNum + 1);
+      }
+
+      setTypingSpeed(isDeleting ? 75 : 150);
+    };
+
+    const timer = setTimeout(handleType, typingSpeed);
+    return () => clearTimeout(timer);
+  }, [text, isDeleting, loopNum, typingSpeed, words]);
+
+  return (
+    <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent border-r-2 border-yellow-400">
+      {text}
+    </span>
+  );
+}
+
+
 export default function Home() {
     return (
         <div className="bg-gray-50 min-h-screen">
@@ -234,11 +277,8 @@ export default function Home() {
                             <span className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium text-indigo-200 mb-4">
                                  Philippines' Leading Exam Prep Platform
                             </span>
-                            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-                                Master Your{' '}
-                                <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-                                    Professional Exams
-                                </span>
+                            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight h-24 md:h-36">
+                                Practice your <TypewriterEffect />
                             </h2>
                             <p className="text-xl md:text-2xl text-indigo-100 mb-10 max-w-4xl mx-auto leading-relaxed">
                                 Join <strong className="text-white">50,000+</strong> successful Filipino professionals who passed their Civil Service, Nursing, CPA, and Bar exams with our AI-powered practice platform.
