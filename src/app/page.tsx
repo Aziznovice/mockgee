@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import Link from "next/link";
@@ -330,14 +331,7 @@ export default function Home() {
                                     <span className="text-sm font-medium text-green-600">Free samples available</span>
                                 </div>
                                 <Link href={`/mock-test/${exam.id}`} passHref>
-                                    <Button className={`w-full ${
-                                        exam.color === 'slate' ? 'bg-slate-600 hover:bg-slate-700' :
-                                        exam.color === 'teal' ? 'bg-teal-600 hover:bg-teal-700' :
-                                        exam.color === 'violet' ? 'bg-violet-600 hover:bg-violet-700' :
-                                        exam.color === 'amber' ? 'bg-amber-600 hover:bg-amber-700' :
-                                        exam.color === 'emerald' ? 'bg-emerald-600 hover:bg-emerald-700' :
-                                        'bg-indigo-600 hover:bg-indigo-700'
-                                    } text-white py-2 px-4 rounded-lg font-medium transition-colors`}>
+                                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium transition-colors">
                                         Take the Test
                                     </Button>
                                 </Link>
