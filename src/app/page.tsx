@@ -208,6 +208,15 @@ const features = [
     { icon: BookOpen, title: "Study Materials", description: "Comprehensive guides." },
 ];
 
+const subscriptionFeatures = [
+    { text: "Practice your mistakes with personalized quizzes." },
+    { text: "Track your progress with detailed performance analytics." },
+    { text: "Master a wide range of topics with our extensive question bank." },
+    { text: "Simulate real exam conditions with timed mock tests." },
+    { text: "Get detailed explanations for every question." },
+    { text: "Access all study materials and guides 24/7." },
+];
+
 const testimonials = [
     { name: "Maria Santos", role: "Civil Service Passer", avatar: "MA", text: "Passed Civil Service Professional with 89%! The practice questions were exactly like the real exam.", color: "bg-green-50" },
     { name: "John Reyes, RN", role: "Nursing Board Passer", avatar: "JR", text: "ExamAce helped me pass the Nursing Board on my first try. The explanations were incredibly helpful!", color: "bg-blue-50" },
@@ -419,19 +428,28 @@ export default function Home() {
                     </div>
                 </section>
 
-                {/* Features Preview */}
-                <section className="mb-8">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-4">What You Get with ExamAce</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        {features.map((feature) => (
-                            <div key={feature.title} className="bg-white border border-gray-200 p-4 rounded-lg text-center">
-                                <div className="w-8 h-8 bg-slate-100 rounded-lg mx-auto mb-2 border-2 border-dashed border-slate-300 flex items-center justify-center">
-                                    <feature.icon className="h-4 w-4 text-slate-400" />
+                 {/* Why Subscribe Section */}
+                 <section className="mb-16">
+                    <div className="text-center mb-8">
+                        <h3 className="text-3xl font-bold text-gray-900">Why Subscribe to ExamAce?</h3>
+                        <p className="text-lg text-gray-600 mt-2">Unlock your full potential and pass your exam with confidence.</p>
+                    </div>
+                    <div className="max-w-4xl mx-auto bg-white border border-gray-200 rounded-2xl shadow-sm p-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                            {subscriptionFeatures.map((feature, index) => (
+                                <div key={index} className="flex items-start gap-3">
+                                    <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                        <CheckCircle className="h-4 w-4 text-green-600" />
+                                    </div>
+                                    <p className="text-gray-700">{feature.text}</p>
                                 </div>
-                                <div className="font-medium text-gray-900">{feature.title}</div>
-                                <div className="text-sm text-gray-600">{feature.description}</div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+                         <div className="mt-8 text-center">
+                            <button className="bg-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-md">
+                                View Pricing & Plans
+                            </button>
+                        </div>
                     </div>
                 </section>
 
