@@ -163,7 +163,7 @@ export default function QuestionsPage() {
         .filter(q => {
             const searchMatch = q.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 q.tags.some(tagId => getTagName(tagId).toLowerCase().includes(searchTerm.toLowerCase()));
-            const tagMatch = tagFilter.length === 0 || q.tags.some(tagId => tagFilter.includes(tagId));
+            const tagMatch = tagFilter.length === 0 || tagFilter.every(tagId => q.tags.includes(tagId));
             return searchMatch && tagMatch;
         });
 
@@ -430,4 +430,3 @@ export default function QuestionsPage() {
   );
 }
 
-    
