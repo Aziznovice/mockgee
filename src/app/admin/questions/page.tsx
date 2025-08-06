@@ -38,10 +38,17 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MoreHorizontal, PlusCircle, Upload, LayoutGrid, Rows3, Check, BoxSelect, Trash2, ArrowUpDown, Search } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Upload, LayoutGrid, Rows3, Check, BoxSelect, Trash2, ArrowUpDown, Search, Tag as TagIcon } from "lucide-react";
 import { questions as allQuestions, tags, QuestionGroup, questionGroups as allQuestionGroups } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -153,14 +160,18 @@ export default function QuestionsPage() {
   const [deletionTarget, setDeletionTarget] = useState<DeletionTarget>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
+  const [tagFilter, setTagFilter] = useState('all');
 
   const getTagName = (tagId: string) => tags.find(t => t.id === tagId)?.name || 'Unknown';
   
   const sortedAndFilteredQuestions = useMemo(() => {
-    let filtered = allQuestions.filter(q =>
-        q.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        q.tags.some(tagId => getTagName(tagId).toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    let filtered = allQuestions
+        .filter(q => {
+            const searchMatch = q.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                q.tags.some(tagId => getTagName(tagId).toLowerCase().includes(searchTerm.toLowerCase()));
+            const tagMatch = tagFilter === 'all' || q.tags.includes(tagFilter);
+            return searchMatch && tagMatch;
+        });
 
     if (sortConfig !== null) {
       filtered.sort((a, b) => {
@@ -184,7 +195,7 @@ export default function QuestionsPage() {
     }
 
     return filtered;
-  }, [searchTerm, sortConfig]);
+  }, [searchTerm, sortConfig, tagFilter]);
 
   const requestSort = (key: keyof Question | 'group') => {
     let direction: 'ascending' | 'descending' = 'ascending';
@@ -277,17 +288,29 @@ export default function QuestionsPage() {
         <CardContent className="pt-6">
           {view === "table" ? (
             <div>
-                 <div className="mb-4">
-                    <div className="relative">
+                 <div className="mb-4 flex items-center gap-2">
+                    <div className="relative flex-1">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
                             type="search"
                             placeholder="Search questions or tags..."
-                            className="w-full pl-8 sm:w-1/2 md:w-1/3"
+                            className="w-full pl-8"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
+                    <Select value={tagFilter} onValueChange={setTagFilter}>
+                        <SelectTrigger className="w-auto min-w-[150px] gap-1">
+                            <TagIcon className="h-4 w-4 text-muted-foreground"/>
+                            <SelectValue placeholder="Filter by tag" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Tags</SelectItem>
+                            {tags.map(tag => (
+                                <SelectItem key={tag.id} value={tag.id}>{tag.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
                 <Table>
                   <TableHeader>
