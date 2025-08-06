@@ -6,14 +6,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Clock, ListChecks } from "lucide-react";
 import { Progress } from "./ui/progress";
+import { useState } from "react";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 interface TestOverviewProps {
     test: Test;
-    onStart: (useTimer: boolean) => void;
+    onStart: (duration: number | null) => void;
 }
 
 export function TestOverview({ test, onStart }: TestOverviewProps) {
     const totalQuestions = test.subjects?.reduce((sum, s) => sum + s.questionCount, 0) ?? test.questionCount ?? 0;
+    const [customDuration, setCustomDuration] = useState(test.duration || 10);
 
     return (
         <div className="container mx-auto flex justify-center items-center h-[calc(100vh-200px)] p-4">
@@ -44,10 +48,20 @@ export function TestOverview({ test, onStart }: TestOverviewProps) {
                              <p className="text-sm text-muted-foreground">This test covers a general mix of topics.</p>
                         )}
                     </div>
-                     <div className="text-center">
+                     <div className="text-center space-y-4">
                         {test.duration ? (
-                            <div className="text-lg">
-                            This test has a recommended time limit of <span className="font-bold">{test.duration} minutes</span>.
+                            <div>
+                                <Label htmlFor="duration-input" className="text-lg">Recommended time: <span className="font-bold">{test.duration} minutes</span></Label>
+                                <div className="mt-2 max-w-xs mx-auto">
+                                    <Input 
+                                        id="duration-input"
+                                        type="number"
+                                        value={customDuration}
+                                        onChange={(e) => setCustomDuration(Number(e.target.value))}
+                                        className="text-center"
+                                    />
+                                    <p className="text-xs text-muted-foreground mt-1">You can edit the timer duration in minutes.</p>
+                                </div>
                             </div>
                         ) : (
                             <div className="text-lg">
@@ -57,13 +71,13 @@ export function TestOverview({ test, onStart }: TestOverviewProps) {
                     </div>
                 </CardContent>
                 <CardFooter className="flex flex-col sm:flex-row gap-3 sm:justify-around">
-                     {test.duration && (
-                        <Button onClick={() => onStart(true)} size="lg" className="w-full sm:w-auto">
+                     {test.duration ? (
+                        <Button onClick={() => onStart(customDuration)} size="lg" className="w-full sm:w-auto">
                             <Clock className="mr-2 h-5 w-5" />
                             Start with Timer
                         </Button>
-                    )}
-                     <Button onClick={() => onStart(false)} size="lg" variant={test.duration ? 'outline' : 'default'} className="w-full sm:w-auto">
+                    ) : null}
+                     <Button onClick={() => onStart(null)} size="lg" variant={test.duration ? 'outline' : 'default'} className="w-full sm:w-auto">
                         Start without Timer
                     </Button>
                 </CardFooter>

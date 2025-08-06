@@ -81,9 +81,9 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
     router.push(`/mock-test/${test.id}/results?${newSearchParams.toString()}`);
   };
 
-  const startQuiz = (useTimer: boolean) => {
-    if (useTimer && test.duration) {
-        setTimeLeft(test.duration * 60);
+  const startQuiz = (duration: number | null) => {
+    if (duration !== null && duration > 0) {
+        setTimeLeft(duration * 60);
     }
     setQuizStarted(true);
   }
