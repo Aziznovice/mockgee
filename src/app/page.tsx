@@ -1,40 +1,67 @@
-
 "use client";
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, CheckCircle, Lightbulb, BarChart2, BookOpen, Clock, Linkedin, Facebook, Twitter, Instagram } from "lucide-react";
+import { ArrowRight, CheckCircle, Lightbulb, BarChart2, BookOpen, Clock, Linkedin, Facebook, Twitter, Instagram, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
+// Custom styles to match design.html
+const customStyles = `
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+  
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  .bg-gradient-indigo {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #4338ca 100%);
+  }
+`;
+
+// Inject custom styles
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = customStyles;
+  document.head.appendChild(styleElement);
+}
+
 function Header() {
     return (
-        <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container flex h-16 max-w-7xl items-center justify-between">
-                <Link href="/" className="mr-6 flex items-center space-x-2">
-                    <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-primary text-primary-foreground">EA</AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                        <span className="font-bold font-headline">ExamAce Philippines</span>
-                        <span className="text-xs text-muted-foreground">Professional Exam Preparation Platform</span>
+        <header className="bg-white shadow-lg border-b border-gray-100 sticky top-0 z-40 backdrop-blur-sm bg-white/95">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between items-center h-20">
+                    <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg">
+                            <span className="text-white font-bold text-xl">EA</span>
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">ExamAce Philippines</h1>
+                            <p className="text-sm text-indigo-600 font-medium">Professional Exam Preparation Platform</p>
+                        </div>
                     </div>
-                </Link>
-                <nav className="hidden items-center gap-6 text-sm md:flex">
-                    <Link href="#" className="font-medium transition-colors hover:text-primary">Features</Link>
-                    <Link href="#" className="font-medium transition-colors hover:text-primary">Exam Types</Link>
-                    <Link href="#" className="font-medium transition-colors hover:text-primary">Pricing</Link>
-                    <Link href="#" className="font-medium transition-colors hover:text-primary">About</Link>
-                </nav>
-                <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" asChild>
-                        <Link href="#">Sign In</Link>
-                    </Button>
-                    <Button size="sm" asChild>
-                        <Link href="#">Start Free Trial</Link>
-                    </Button>
+                    <nav className="hidden lg:flex space-x-1">
+                        <Link href="#features" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-4 py-2 rounded-lg font-medium text-sm transition-all">Features</Link>
+                        <Link href="#exams" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-4 py-2 rounded-lg font-medium text-sm transition-all">Exam Types</Link>
+                        <Link href="#pricing" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-4 py-2 rounded-lg font-medium text-sm transition-all">Pricing</Link>
+                        <Link href="#about" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-4 py-2 rounded-lg font-medium text-sm transition-all">About</Link>
+                    </nav>
+                    <div className="flex items-center space-x-3">
+                        <button className="text-gray-600 hover:text-gray-900 font-medium text-sm transition-all">
+                            Sign In
+                        </button>
+                        <button className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium text-sm hover:bg-indigo-700 transition-all shadow-sm">
+                            Start Free Trial
+                        </button>
+                        <button className="lg:hidden p-2 rounded-lg hover:bg-gray-100">
+                            <Menu className="w-6 h-6 text-gray-600" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </header>
@@ -43,57 +70,108 @@ function Header() {
 
 function Footer() {
     return (
-        <footer className="bg-gray-900 text-gray-400">
-            <div className="container mx-auto max-w-7xl px-4 py-12 md:px-6">
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-                    <div>
-                         <Link href="/" className="flex items-center space-x-2">
-                            <Avatar className="h-8 w-8">
-                                <AvatarFallback className="bg-primary text-primary-foreground">EA</AvatarFallback>
-                            </Avatar>
-                            <span className="font-bold text-white font-headline">ExamAce Philippines</span>
-                        </Link>
-                        <p className="mt-4 text-sm">Empowering Filipino professionals to achieve their career goals through comprehensive exam preparation.</p>
-                        <div className="mt-4 flex space-x-4">
-                            <Link href="#" className="hover:text-white"><Facebook className="h-5 w-5"/></Link>
-                            <Link href="#" className="hover:text-white"><Twitter className="h-5 w-5"/></Link>
-                            <Link href="#" className="hover:text-white"><Instagram className="h-5 w-5"/></Link>
-                            <Link href="#" className="hover:text-white"><Linkedin className="h-5 w-5"/></Link>
+        <footer className="bg-gray-900 text-white mt-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    {/* Company Info */}
+                    <div className="col-span-1 md:col-span-2">
+                        <div className="flex items-center space-x-3 mb-4">
+                            <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+                                <span className="text-white font-bold text-lg">EA</span>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold">ExamAce Philippines</h3>
+                                <p className="text-sm text-gray-400">Professional Exam Preparation</p>
+                            </div>
+                        </div>
+                        <p className="text-gray-300 mb-4 max-w-md">
+                            Empowering Filipino professionals to achieve their career goals through comprehensive exam preparation and practice tests for Civil Service, Nursing, CPA, Bar, and other professional licensure examinations.
+                        </p>
+                        <div className="flex space-x-4">
+                            <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                                <Facebook className="w-6 h-6" />
+                            </Link>
+                            <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                                <Twitter className="w-6 h-6" />
+                            </Link>
+                            <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                                <Linkedin className="w-6 h-6" />
+                            </Link>
+                            <Link href="#" className="text-gray-400 hover:text-white transition-colors">
+                                <Instagram className="w-6 h-6" />
+                            </Link>
                         </div>
                     </div>
+
+                    {/* Quick Links */}
                     <div>
-                        <h3 className="text-sm font-semibold uppercase tracking-wider text-white">Quick Links</h3>
-                        <ul className="mt-4 space-y-2">
-                            <li><Link href="#" className="hover:text-white">Dashboard</Link></li>
-                            <li><Link href="#" className="hover:text-white">Practice Tests</Link></li>
-                            <li><Link href="#" className="hover:text-white">Progress Tracking</Link></li>
-                            <li><Link href="#" className="hover:text-white">Performance Analytics</Link></li>
+                        <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
+                        <ul className="space-y-2">
+                            <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Dashboard</Link></li>
+                            <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Practice Tests</Link></li>
+                            <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Study Guides</Link></li>
+                            <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Progress Tracking</Link></li>
+                            <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Mock Exams</Link></li>
+                            <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Performance Analytics</Link></li>
                         </ul>
                     </div>
+
+                    {/* Exam Categories */}
                     <div>
-                        <h3 className="text-sm font-semibold uppercase tracking-wider text-white">Support & Resources</h3>
-                        <ul className="mt-4 space-y-2">
-                            <li><Link href="#" className="hover:text-white">Help Center</Link></li>
-                            <li><Link href="#" className="hover:text-white">Contact Support</Link></li>
-                            <li><Link href="#" className="hover:text-white">FAQ</Link></li>
-                            <li><Link href="#" className="hover:text-white">System Status</Link></li>
-                            <li><Link href="#" className="hover:text-white">Community</Link></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 className="text-sm font-semibold uppercase tracking-wider text-white">Contact Information</h3>
-                        <ul className="mt-4 space-y-2">
-                            <li className="flex items-center gap-2"><span>support@examace.ph</span></li>
-                            <li className="flex items-center gap-2"><span>+63 2 8123 4567</span></li>
-                            <li className="flex items-center gap-2"><span>Makati City, Metro Manila</span></li>
+                        <h4 className="text-lg font-semibold mb-4">Exam Categories</h4>
+                        <ul className="space-y-2">
+                            <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Civil Service Exam</Link></li>
+                            <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Nursing Licensure</Link></li>
+                            <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">CPA Board Exam</Link></li>
+                            <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Bar Examination</Link></li>
+                            <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Engineering Board</Link></li>
+                            <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Agriculturist Board</Link></li>
                         </ul>
                     </div>
                 </div>
-                <div className="mt-8 border-t border-gray-800 pt-6 text-sm flex justify-between">
-                    <p>&copy; 2024 ExamAce Philippines. All rights reserved.</p>
-                    <div className="flex gap-4">
-                        <Link href="#" className="hover:text-white">Privacy Policy</Link>
-                        <Link href="#" className="hover:text-white">Terms of Service</Link>
+
+                {/* Support & Legal */}
+                <div className="border-t border-gray-800 mt-8 pt-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 className="text-lg font-semibold mb-4">Support & Resources</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <ul className="space-y-2">
+                                    <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Help Center</Link></li>
+                                    <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Contact Support</Link></li>
+                                    <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">FAQ</Link></li>
+                                    <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Tutorials</Link></li>
+                                </ul>
+                                <ul className="space-y-2">
+                                    <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">System Status</Link></li>
+                                    <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Updates</Link></li>
+                                    <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Community</Link></li>
+                                    <li><Link href="#" className="text-gray-300 hover:text-white transition-colors">Blog</Link></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 className="text-lg font-semibold mb-4">Contact Information</h4>
+                            <div className="space-y-2 text-gray-300">
+                                <p>📧 support@examace.ph</p>
+                                <p>📞 +63 2 8123 4567</p>
+                                <p>📍 Makati City, Metro Manila, Philippines</p>
+                                <p>🕒 Monday - Friday: 8:00 AM - 6:00 PM (PHT)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Bottom Bar */}
+                <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                    <div className="text-gray-400 text-sm mb-4 md:mb-0">
+                        © 2024 ExamAce Philippines. All rights reserved.
+                    </div>
+                    <div className="flex space-x-6 text-sm">
+                        <Link href="#" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</Link>
+                        <Link href="#" className="text-gray-400 hover:text-white transition-colors">Terms of Service</Link>
+                        <Link href="#" className="text-gray-400 hover:text-white transition-colors">Cookie Policy</Link>
+                        <Link href="#" className="text-gray-400 hover:text-white transition-colors">Accessibility</Link>
                     </div>
                 </div>
             </div>
@@ -109,12 +187,12 @@ const stats = [
 ];
 
 const examCategories = [
-    { title: "Civil Service Exam", subjects: 8, questions: "2,500+", badge: "Most Popular", color: "gray" },
-    { title: "Nursing Licensure Exam", subjects: 12, questions: "4,200+", badge: "High-Demand", color: "green" },
-    { title: "CPA Board Exam", subjects: 10, questions: "3,800+", badge: "Professional", color: "purple" },
-    { title: "Bar Examination", subjects: 8, questions: "3,200+", badge: "Premium", color: "orange" },
-    { title: "Agriculturist Board Exam", subjects: 15, questions: "4,500+", badge: "Challenging", color: "green" },
-    { title: "Engineering Board Exams", subjects: 20, questions: "6,000+", badge: "Popular", color: "purple" },
+    { title: "Civil Service Exam", subjects: 8, questions: "2,500+", badge: "Most Popular", color: "slate", description: "Professional & Sub-professional levels. Pass rate: 14-18%" },
+    { title: "Nursing Licensure Exam", subjects: 12, questions: "4,200+", badge: "High Demand", color: "teal", description: "Requires ≥75% general average for passing" },
+    { title: "CPA Board Exam", subjects: 10, questions: "3,800+", badge: "Professional", color: "violet", description: "Certified Public Accountant licensure examination" },
+    { title: "Bar Examination", subjects: 8, questions: "3,200+", badge: "Premium", color: "amber", description: "Philippine Bar Exam for law practitioners" },
+    { title: "Agriculturist Board Exam", subjects: 15, questions: "4,500+", badge: "Challenging", color: "emerald", description: "Pass rate: 29-30%. Comprehensive agriculture review" },
+    { title: "Engineering Board Exams", subjects: 20, questions: "6,000+", badge: "Popular", color: "indigo", description: "Civil, Mechanical, Electrical & Electronics Engineering" },
 ];
 
 const features = [
@@ -125,139 +203,208 @@ const features = [
 ];
 
 const testimonials = [
-    { name: "Maria Santos", role: "Civil Service Passer", avatar: "MA", text: "'Passed Civil Service Professional with 89%! The practice questions were exactly like the real exam.'", color: "bg-green-100 dark:bg-green-900/30" },
-    { name: "John Reyes, RN", role: "Nursing Board Passer", avatar: "JR", text: "'ExamAce helped me pass the Nursing Board on my first try. The explanations were incredibly helpful.'", color: "bg-blue-100 dark:bg-blue-900/30" },
-    { name: "Anna Lopez, CPA", role: "CPA Board Passer", avatar: "AL", text: "'The analytics feature showed me exactly where to focus my studies. Passed CPA Board with confidence!'", color: "bg-purple-100 dark:bg-purple-900/30" },
+    { name: "Maria Santos", role: "Civil Service Passer", avatar: "MA", text: "Passed Civil Service Professional with 89%! The practice questions were exactly like the real exam.", color: "bg-green-50" },
+    { name: "John Reyes, RN", role: "Nursing Board Passer", avatar: "JR", text: "ExamAce helped me pass the Nursing Board on my first try. The explanations were incredibly helpful!", color: "bg-blue-50" },
+    { name: "Anna Lopez, CPA", role: "CPA Board Passer", avatar: "AL", text: "The analytics feature showed me exactly where to focus my studies. Passed CPA Board with confidence!", color: "bg-purple-50" },
 ];
 
 export default function Home() {
     return (
-        <div className="flex min-h-screen w-full flex-col bg-background">
+        <div className="bg-gray-50 min-h-screen">
             <Header />
-            <main className="flex-1">
-                {/* Hero Section */}
-                <section className="relative bg-gradient-to-br from-primary via-purple-700 to-indigo-900 text-white py-20 md:py-32">
-                    <div className="container mx-auto max-w-7xl px-4 text-center">
-                        <Badge variant="secondary" className="mb-4">
-                            <span className="mr-2">🇵🇭</span> Philippines' Leading Exam Prep Platform
-                        </Badge>
-                        <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tighter">
-                            Master Your Professional Exams
-                        </h1>
-                        <p className="mx-auto mt-4 max-w-3xl text-lg text-primary-foreground/80">
-                            Join 50,000+ successful Filipino professionals who passed their Civil Service, Nursing, CPA, and Bar exams with our AI-powered practice platform.
-                        </p>
-                        <div className="mt-8 flex justify-center gap-4">
-                            <Button size="lg" variant="secondary" asChild>
-                                <Link href="#">Try Sample Questions Free</Link>
-                            </Button>
-                            <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-primary">
+            
+            {/* Hero Section */}
+            <section className="relative overflow-hidden">
+                {/* Background with enhanced gradient */}
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                
+                {/* Decorative elements */}
+                <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
+                    <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/5 rounded-full blur-3xl"></div>
+                    <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-400/10 rounded-full blur-3xl"></div>
+                </div>
+                
+                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+                    <div className="text-center">
+                        {/* Main heading with better typography */}
+                        <div className="mb-6">
+                            <span className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium text-indigo-200 mb-4">
+                                � Philippines' Leading Exam Prep Platform
+                            </span>
+                            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                                Master Your{' '}
+                                <span className="bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+                                    Professional Exams
+                                </span>
+                            </h2>
+                            <p className="text-xl md:text-2xl text-indigo-100 mb-10 max-w-4xl mx-auto leading-relaxed">
+                                Join <strong className="text-white">50,000+</strong> successful Filipino professionals who passed their Civil Service, Nursing, CPA, and Bar exams with our AI-powered practice platform.
+                            </p>
+                        </div>
+
+                        {/* CTA Buttons */}
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+                            <button className="bg-white text-indigo-900 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-xl">
+                                Try Sample Questions Free
+                            </button>
+                            <button className="border-2 border-white/30 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/10 transition-all backdrop-blur-sm">
                                 Watch Demo
-                            </Button>
+                            </button>
                         </div>
-                    </div>
-                </section>
-                
-                {/* Stats Section */}
-                <section className="bg-background py-16">
-                    <div className="container mx-auto max-w-7xl px-4">
-                         <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-8">
+
+                        {/* Enhanced Stats Grid */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
                             {stats.map(stat => (
-                                <div key={stat.label} className="rounded-lg bg-muted/50 p-6 text-center">
-                                    <h3 className="text-3xl md:text-4xl font-bold text-primary">{stat.value}</h3>
-                                    <p className="text-sm font-semibold mt-1">{stat.label}</p>
-                                    <p className="text-xs text-muted-foreground">{stat.sublabel}</p>
+                                <div key={stat.label} className="bg-white/10 backdrop-blur-md rounded-2xl p-6 text-center border border-white/20 hover:bg-white/15 transition-all">
+                                    <div className="text-3xl md:text-4xl font-bold text-white mb-2">{stat.value}</div>
+                                    <div className="text-sm text-indigo-200 font-medium">{stat.label}</div>
+                                    <div className="text-xs text-indigo-300 mt-1">{stat.sublabel}</div>
                                 </div>
                             ))}
+                        </div>
+
+                        {/* Trust indicators */}
+                        <div className="mt-12 pt-8 border-t border-white/20">
+                            <p className="text-indigo-200 text-sm mb-4">Trusted by professionals from:</p>
+                            <div className="flex justify-center items-center space-x-8 opacity-60">
+                                <div className="text-white font-semibold">DOH</div>
+                                <div className="text-white font-semibold">BSP</div>
+                                <div className="text-white font-semibold">BIR</div>
+                                <div className="text-white font-semibold">CSC</div>
+                                <div className="text-white font-semibold">PRC</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Main Content */}
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Free Trial Banner */}
+                <section className="mb-8">
+                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-200 p-6">
+                        <div className="flex flex-col md:flex-row items-center justify-between">
+                            <div className="mb-4 md:mb-0">
+                                <h3 className="text-xl font-bold text-gray-900 mb-2">🎯 Try Before You Subscribe!</h3>
+                                <p className="text-gray-600">Get instant access to sample questions from all exam categories. No registration required.</p>
+                            </div>
+                            <div className="flex space-x-3">
+                                <button className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-sm">
+                                    Start Free Trial
+                                </button>
+                                <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all">
+                                    Sign In
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </section>
 
-                {/* Exam Categories Section */}
-                <section className="py-16 bg-muted/40">
-                    <div className="container mx-auto max-w-7xl px-4">
-                        <div className="text-center mb-12">
-                            <h2 className="text-3xl font-bold font-headline">Try Sample Questions by Exam Category</h2>
-                            <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Get instant access to sample questions from all exam categories. No registration required.</p>
-                        </div>
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                            {examCategories.map((exam) => (
-                                <Card key={exam.title} className="flex flex-col overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
-                                    <CardHeader>
-                                        <div className="flex justify-between items-center">
-                                            <div className="flex items-center gap-2">
-                                                <div className={`w-8 h-8 rounded-md bg-${exam.color}-100 flex items-center justify-center`}>
-                                                    <BookOpen className={`h-5 w-5 text-${exam.color}-600`} />
-                                                </div>
-                                                <CardTitle className="font-headline text-lg">{exam.title}</CardTitle>
-                                            </div>
-                                            <Badge variant="outline" className={`border-${exam.color}-500 text-${exam.color}-600`}>{exam.badge}</Badge>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="flex-grow space-y-2 text-sm text-muted-foreground">
-                                        <p>{exam.subjects} subjects • {exam.questions} questions</p>
-                                        <p className="text-green-600 font-semibold">Free samples available</p>
-                                    </CardContent>
-                                    <CardFooter>
-                                        <Button className={`w-full bg-${exam.color}-600 hover:bg-${exam.color}-700`} asChild>
-                                            <Link href="#">
-                                                Try Sample Questions
-                                            </Link>
-                                        </Button>
-                                    </CardFooter>
-                                </Card>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-                
-                {/* Features Section */}
-                <section className="py-16">
-                    <div className="container mx-auto max-w-5xl px-4 text-center">
-                         <h2 className="text-3xl font-bold font-headline mb-4">What You Get with ExamAce</h2>
-                         <div className="grid grid-cols-1 gap-8 md:grid-cols-4 mt-8">
-                            {features.map((feature) => (
-                                <div key={feature.title} className="flex flex-col items-center">
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                                        <feature.icon className="h-6 w-6"/>
+                {/* Exam Categories */}
+                <section className="mb-8">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-6">Try Sample Questions by Exam Category</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {examCategories.map((exam) => (
+                            <div key={exam.title} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition-all duration-300 hover:transform hover:translate-y-[-4px] hover:shadow-lg">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className={`w-12 h-12 bg-${exam.color}-100 rounded-lg border-2 border-dashed border-${exam.color}-300 flex items-center justify-center`}>
+                                        <span className={`text-xs text-${exam.color}-400 font-medium`}>IMG</span>
                                     </div>
-                                    <h3 className="mt-4 font-semibold">{feature.title}</h3>
-                                    <p className="mt-1 text-sm text-muted-foreground">{feature.description}</p>
+                                    <span className={`${
+                                        exam.badge === 'Most Popular' ? 'bg-rose-100 text-rose-800' :
+                                        exam.badge === 'High Demand' ? 'bg-teal-100 text-teal-800' :
+                                        exam.badge === 'Professional' ? 'bg-violet-100 text-violet-800' :
+                                        exam.badge === 'Premium' ? 'bg-amber-100 text-amber-800' :
+                                        exam.badge === 'Challenging' ? 'bg-orange-100 text-orange-800' :
+                                        'bg-blue-100 text-blue-800'
+                                    } text-xs font-medium px-2.5 py-0.5 rounded-full`}>
+                                        {exam.badge}
+                                    </span>
                                 </div>
-                            ))}
-                        </div>
+                                <h4 className="text-lg font-semibold text-gray-900 mb-2">{exam.title}</h4>
+                                <p className="text-gray-600 text-sm mb-4">{exam.description}</p>
+                                <div className="flex justify-between items-center mb-4">
+                                    <span className="text-sm text-gray-500">{exam.subjects} subjects • {exam.questions} questions</span>
+                                    <span className="text-sm font-medium text-green-600">Free samples available</span>
+                                </div>
+                                <button className={`w-full ${
+                                    exam.color === 'slate' ? 'bg-slate-600 hover:bg-slate-700' :
+                                    exam.color === 'teal' ? 'bg-teal-600 hover:bg-teal-700' :
+                                    exam.color === 'violet' ? 'bg-violet-600 hover:bg-violet-700' :
+                                    exam.color === 'amber' ? 'bg-amber-600 hover:bg-amber-700' :
+                                    exam.color === 'emerald' ? 'bg-emerald-600 hover:bg-emerald-700' :
+                                    'bg-indigo-600 hover:bg-indigo-700'
+                                } text-white py-2 px-4 rounded-lg font-medium transition-colors`}>
+                                    Try Sample Questions
+                                </button>
+                            </div>
+                        ))}
                     </div>
                 </section>
 
-                {/* Testimonials Section */}
-                <section className="py-16 bg-muted/40">
-                    <div className="container mx-auto max-w-4xl px-4">
-                        <h2 className="text-3xl font-bold text-center font-headline mb-8">Success Stories from Our Users</h2>
-                        <div className="space-y-4">
-                            {testimonials.map((testimonial) => (
-                                <Card key={testimonial.name} className={testimonial.color}>
-                                    <CardContent className="pt-6">
-                                        <div className="flex items-start gap-4">
-                                            <Avatar>
-                                                <AvatarFallback className="bg-primary/20">{testimonial.avatar}</AvatarFallback>
-                                            </Avatar>
-                                            <div>
-                                                <p className="font-semibold">{testimonial.name}</p>
-                                                <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                                                <blockquote className="mt-2 italic border-l-2 pl-4">{testimonial.text}</blockquote>
-                                            </div>
+                {/* Features Preview */}
+                <section className="mb-8">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">What You Get with ExamAce</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        {features.map((feature) => (
+                            <div key={feature.title} className="bg-white border border-gray-200 p-4 rounded-lg text-center">
+                                <div className="w-8 h-8 bg-slate-100 rounded-lg mx-auto mb-2 border-2 border-dashed border-slate-300 flex items-center justify-center">
+                                    <feature.icon className="h-4 w-4 text-slate-400" />
+                                </div>
+                                <div className="font-medium text-gray-900">{feature.title}</div>
+                                <div className="text-sm text-gray-600">{feature.description}</div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+                {/* Success Stories */}
+                <section>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">Success Stories from Our Users</h3>
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                        <div className="p-6">
+                            <div className="space-y-4">
+                                {testimonials.map((testimonial) => (
+                                    <div key={testimonial.name} className={`flex items-start space-x-4 p-4 ${testimonial.color} rounded-lg`}>
+                                        <div className={`w-10 h-10 ${
+                                            testimonial.color === 'bg-green-50' ? 'bg-green-100' :
+                                            testimonial.color === 'bg-blue-50' ? 'bg-blue-100' :
+                                            'bg-purple-100'
+                                        } rounded-full flex items-center justify-center flex-shrink-0`}>
+                                            <span className={`${
+                                                testimonial.color === 'bg-green-50' ? 'text-green-600' :
+                                                testimonial.color === 'bg-blue-50' ? 'text-blue-600' :
+                                                'text-purple-600'
+                                            } font-medium text-sm`}>
+                                                {testimonial.avatar}
+                                            </span>
                                         </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
+                                        <div className="flex-1">
+                                            <p className="font-medium text-gray-900">{testimonial.name}</p>
+                                            <p className="text-sm text-gray-600 mb-2">"{testimonial.text}"</p>
+                                            <span className={`${
+                                                testimonial.color === 'bg-green-50' ? 'bg-green-100 text-green-800' :
+                                                testimonial.color === 'bg-blue-50' ? 'bg-blue-100 text-blue-800' :
+                                                'bg-purple-100 text-purple-800'
+                                            } text-xs font-medium px-2.5 py-0.5 rounded-full`}>
+                                                {testimonial.role}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="mt-6 text-center">
+                                <button className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all">
+                                    Join 50,000+ Successful Professionals
+                                </button>
+                            </div>
                         </div>
-                         <div className="text-center mt-12">
-                             <Button size="lg">Join 50,000+ Successful Professionals</Button>
-                         </div>
                     </div>
                 </section>
             </main>
-            <Footer/>
+            
+            <Footer />
         </div>
     );
 }
