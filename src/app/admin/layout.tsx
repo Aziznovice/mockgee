@@ -35,7 +35,7 @@ export default function AdminLayout({
             <Sidebar>
             <SidebarHeader>
                 <div className="flex items-center gap-2 p-2">
-                <BookMarked className="h-8 w-8 text-accent" />
+                <BookMarked className="h-8 w-8 text-primary" />
                 <h2 className="text-xl font-headline font-semibold">QuizWise</h2>
                 </div>
             </SidebarHeader>
