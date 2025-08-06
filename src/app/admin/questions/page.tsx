@@ -27,6 +27,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import {
     AlertDialog,
@@ -38,17 +39,10 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-  } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MoreHorizontal, PlusCircle, Upload, LayoutGrid, Rows3, Check, BoxSelect, Trash2, ArrowUpDown, Search, Tag as TagIcon } from "lucide-react";
+import { MoreHorizontal, PlusCircle, Upload, LayoutGrid, Rows3, Check, BoxSelect, Trash2, ArrowUpDown, Search, Tag as TagIcon, ChevronDown, X } from "lucide-react";
 import { questions as allQuestions, tags, QuestionGroup, questionGroups as allQuestionGroups } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -160,7 +154,7 @@ export default function QuestionsPage() {
   const [deletionTarget, setDeletionTarget] = useState<DeletionTarget>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<SortConfig>(null);
-  const [tagFilter, setTagFilter] = useState('all');
+  const [tagFilter, setTagFilter] = useState<string[]>([]);
 
   const getTagName = (tagId: string) => tags.find(t => t.id === tagId)?.name || 'Unknown';
   
@@ -169,7 +163,7 @@ export default function QuestionsPage() {
         .filter(q => {
             const searchMatch = q.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 q.tags.some(tagId => getTagName(tagId).toLowerCase().includes(searchTerm.toLowerCase()));
-            const tagMatch = tagFilter === 'all' || q.tags.includes(tagFilter);
+            const tagMatch = tagFilter.length === 0 || q.tags.some(tagId => tagFilter.includes(tagId));
             return searchMatch && tagMatch;
         });
 
@@ -231,6 +225,12 @@ export default function QuestionsPage() {
     });
     setDeletionTarget(null);
   };
+
+  const handleTagToggle = (tagId: string) => {
+    setTagFilter(prev => 
+        prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]
+    );
+  }
   
   return (
     <>
@@ -299,18 +299,39 @@ export default function QuestionsPage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <Select value={tagFilter} onValueChange={setTagFilter}>
-                        <SelectTrigger className="w-auto min-w-[150px] gap-1">
-                            <TagIcon className="h-4 w-4 text-muted-foreground"/>
-                            <SelectValue placeholder="Filter by tag" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Tags</SelectItem>
+                     <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" className="gap-1">
+                                <TagIcon className="h-4 w-4"/>
+                                Tags
+                                {tagFilter.length > 0 && <Badge variant="secondary" className="ml-1">{tagFilter.length}</Badge>}
+                                <ChevronDown className="h-4 w-4 opacity-50 ml-2" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Filter by tag</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                             {tagFilter.length > 0 && (
+                                <>
+                                    <DropdownMenuItem onSelect={() => setTagFilter([])} className="text-red-600">
+                                        <X className="mr-2 h-4 w-4"/>
+                                        Clear
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                </>
+                            )}
                             {tags.map(tag => (
-                                <SelectItem key={tag.id} value={tag.id}>{tag.name}</SelectItem>
+                                <DropdownMenuCheckboxItem
+                                    key={tag.id}
+                                    checked={tagFilter.includes(tag.id)}
+                                    onSelect={(e) => e.preventDefault()}
+                                    onClick={() => handleTagToggle(tag.id)}
+                                >
+                                    {tag.name}
+                                </DropdownMenuCheckboxItem>
                             ))}
-                        </SelectContent>
-                    </Select>
+                        </DropdownMenuContent>
+                     </DropdownMenu>
                 </div>
                 <Table>
                   <TableHeader>
@@ -408,3 +429,5 @@ export default function QuestionsPage() {
     </>
   );
 }
+
+    
