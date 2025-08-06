@@ -124,7 +124,7 @@ export function QuizInterface({ test, questions, questionGroups, sessionId, init
 
   const handleBack = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev + 1);
+      setCurrentQuestionIndex((prev) => prev - 1);
     }
   };
 
