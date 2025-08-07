@@ -362,29 +362,9 @@ export default function Home() {
             </section>
 
             {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Free Trial Banner */}
-                <section className="mb-8">
-                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-200 p-6">
-                        <div className="flex flex-col md:flex-row items-center justify-between">
-                            <div className="mb-4 md:mb-0">
-                                <h3 className="text-xl font-bold text-gray-900 mb-2">🎯 Try Before You Subscribe!</h3>
-                                <p className="text-gray-600">Get instant access to sample questions from all exam categories. No registration required.</p>
-                            </div>
-                            <div id="exam-categories" className="flex space-x-3">
-                                <button className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-sm">
-                                    Start Free Trial
-                                </button>
-                                <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all">
-                                    Sign In
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
+            <main id="exam-categories" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Exam Categories */}
-                <section className="mb-8">
+                <section  className="mb-8">
                     <div className="flex justify-between items-center mb-6">
                         <h3 className="text-2xl font-bold text-gray-900">Mock Test</h3>
                         <Link href="/mock-tests" passHref>
@@ -419,7 +399,7 @@ export default function Home() {
                                     <span className="text-sm font-medium text-green-600">Free samples available</span>
                                 </div>
                                 <Link href={`/mock-test/${exam.id}`} passHref>
-                                    <Button className="w-full bg-gradient-to-br from-green-700 to-green-900 hover:from-green-800 hover:to-green-900 text-white py-2 px-4 rounded-lg font-medium transition-colors">
+                                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium transition-colors">
                                         Take the Test
                                     </Button>
                                 </Link>

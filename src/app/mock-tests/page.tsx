@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import Link from "next/link";
@@ -66,7 +67,7 @@ export default function MockTestsPage() {
                                     <span className="text-sm font-medium text-green-600">Free samples available</span>
                                 </div>
                                 <Link href={`/mock-test/${test.id}`} passHref>
-                                    <Button className="w-full bg-gradient-to-br from-green-700 to-green-900 hover:from-green-800 hover:to-green-900 text-white py-2 px-4 rounded-lg font-medium transition-colors">
+                                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium transition-colors">
                                         Take the Test
                                     </Button>
                                 </Link>
@@ -78,4 +79,3 @@ export default function MockTestsPage() {
         </div>
     );
 }
-
