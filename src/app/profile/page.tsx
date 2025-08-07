@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { getTestById, getSessionsForUser, getAttemptsForSession, testAttempts as allAttemptsData, tests } from "@/lib/data";
 import type { TestAttempt, TestSession } from "@/lib/types";
-import { User, TrendingUp, BarChart, Trophy, Bell, Newspaper, Compass } from "lucide-react";
+import { User, TrendingUp, BarChart, Trophy, Bell, Newspaper, Compass, Zap, Target, BookOpen, Repeat } from "lucide-react";
 import {
   ChartContainer,
   ChartTooltip,
@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { TestHistoryCard } from "@/components/test-history-card";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 const chartConfig = {
   score: {
@@ -32,6 +33,41 @@ const chartConfig = {
     color: "hsl(var(--primary))",
   },
 } satisfies ChartConfig
+
+const featureCards = [
+    {
+        title: "Quick Test",
+        description: "20 random questions",
+        icon: Zap,
+        color: "bg-slate-700 hover:bg-slate-800",
+        textColor: "text-white",
+        href: "#"
+    },
+    {
+        title: "Review Mistakes",
+        description: "Focus on weak areas",
+        icon: Target,
+        color: "bg-rose-600 hover:bg-rose-700",
+        textColor: "text-white",
+        href: "#"
+    },
+    {
+        title: "View Progress",
+        description: "Detailed analytics",
+        icon: BarChart,
+        color: "bg-teal-600 hover:bg-teal-700",
+        textColor: "text-white",
+        href: "#"
+    },
+    {
+        title: "Study Guides",
+        description: "Comprehensive reviews",
+        icon: BookOpen,
+        color: "bg-indigo-600 hover:bg-indigo-700",
+        textColor: "text-white",
+        href: "#"
+    }
+]
 
 export default function ProfilePage() {
     const allSessions = getSessionsForUser();
@@ -118,6 +154,20 @@ export default function ProfilePage() {
                      </CardContent>
                  </Card>
              </div>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {featureCards.map((card, index) => (
+              <Link href={card.href} key={index}>
+                <Card className={cn("transition-transform hover:scale-105", card.color, card.textColor)}>
+                  <CardContent className="p-4">
+                    <card.icon className="h-8 w-8 mb-4 opacity-80" />
+                    <h3 className="text-lg font-bold">{card.title}</h3>
+                    <p className="text-sm opacity-90">{card.description}</p>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
           </div>
 
           <div>
