@@ -1,4 +1,5 @@
 
+
 export interface Choice {
   id: string;
   text: string;
@@ -54,11 +55,12 @@ export interface Test {
 export type UserAnswers = Record<string, string>;
 
 // A TestSession represents a specific instance of a test being taken
-// with a specific set of questions.
+// with a specific set of questions and their required contexts.
 export interface TestSession {
     id: string;
     testId: string;
     questionIds: string[];
+    questionGroupIds: string[]; // Store required group IDs
     startedDate: string;
 }
 

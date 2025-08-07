@@ -1,4 +1,5 @@
 
+
 import { notFound } from "next/navigation";
 import { getTestById, getQuestionsForSession, getOrCreateTestSession, getQuestionGroupsForSession } from "@/lib/data";
 import { Header } from "@/components/header";
@@ -14,7 +15,9 @@ export default function MockTestPage({ params, searchParams }: { params: { id: s
 
   // When starting a new test, we find or create a session.
   // The session ID could be passed in the URL for continuing a test.
-  const sessionId = typeof searchParams?.session === 'string' ? searchParams.session : getOrCreateTestSession(test.id)?.id;
+  const sessionId = typeof searchParams?.session === 'string' 
+    ? searchParams.session 
+    : getOrCreateTestSession(test.id)?.id;
 
   if (!sessionId) {
       // Handle case where session can't be found or created

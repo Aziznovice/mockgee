@@ -1,4 +1,5 @@
 
+
 import type { Tag, Question, Test, TestAttempt, TestSession, QuestionGroup } from './types';
 
 export const tags: Tag[] = [
@@ -160,14 +161,12 @@ export const tests: Test[] = [
   }
 ];
 
-export const testSessions: TestSession[] = [
-    // Two different sessions for the same test topic
-    { id: 's1', testId: '1', questionIds: ['q1', 'q2', 'q3', 'q5'], startedDate: '2024-07-18T09:00:00Z' },
-    { id: 's2', testId: '1', questionIds: ['q5', 'q1', 'q2', 'q3'], startedDate: '2024-07-21T11:00:00Z' },
-    { id: 's3', testId: '2', questionIds: ['q4'], startedDate: '2024-07-19T14:30:00Z' },
-    // A session that is still in progress
-    { id: 's4', testId: '2', questionIds: ['q4'], startedDate: '2024-07-22T11:00:00Z' },
-    { id: 's5', testId: '3', questionIds: ['q4', 'q6', 'q7'], startedDate: '2024-07-23T10:00:00Z' }
+export let testSessions: TestSession[] = [
+    { id: 's1', testId: '1', questionIds: ['q1', 'q2', 'q3', 'q5'], questionGroupIds: [], startedDate: '2024-07-18T09:00:00Z' },
+    { id: 's2', testId: '1', questionIds: ['q5', 'q1', 'q2', 'q3'], questionGroupIds: [], startedDate: '2024-07-21T11:00:00Z' },
+    { id: 's3', testId: '2', questionIds: ['q4'], questionGroupIds: [], startedDate: '2024-07-19T14:30:00Z' },
+    { id: 's4', testId: '2', questionIds: ['q4'], questionGroupIds: [], startedDate: '2024-07-22T11:00:00Z' },
+    { id: 's5', testId: '3', questionIds: ['q4', 'q6', 'q7'], questionGroupIds: ['g1'], startedDate: '2024-07-23T10:00:00Z' }
 ];
 
 export const testAttempts: TestAttempt[] = [
@@ -198,51 +197,82 @@ export const getQuestionsForGroup = (groupId: string) => {
     return questions.filter(q => q.groupId === groupId);
 }
 
-// Get all question groups that have questions in the current session
+// Get all question groups that are part of the current session
 export const getQuestionGroupsForSession = (sessionId: string): QuestionGroup[] => {
     const session = getSessionById(sessionId);
-    if (!session) return [];
-  
-    const groupIdsInSession = new Set<string>();
-    for (const q of questions) {
-      if (session.questionIds.includes(q.id) && q.groupId) {
-        groupIdsInSession.add(q.groupId);
-      }
+    if (!session || !session.questionGroupIds) return [];
+    return questionGroups.filter(g => session.questionGroupIds.includes(g.id));
+};
+
+const shuffleArray = <T>(array: T[]): T[] => {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
     }
-  
-    return questionGroups.filter(g => groupIdsInSession.has(g.id));
-  };
+    return newArray;
+};
 
-// In a real app, you'd generate a new session. For now, we'll just find the first one.
+// In a real app, you'd generate a new session.
 export const getOrCreateTestSession = (testId: string): TestSession | undefined => {
-    // This logic is for demonstration. A real implementation would create a new session.
-    const existingSession = testSessions.find(s => s.testId === testId);
-    if (existingSession) return existingSession;
-
-    // A more realistic implementation would be to create a new session:
-    // const newSessionId = `s${testSessions.length + 1}`;
-    // const test = getTestById(testId);
-    // if (!test) return undefined;
-    // const newSession: TestSession = {
-    //   id: newSessionId,
-    //   testId: testId,
-    //   questionIds: test.allQuestionIds, // Or some randomized subset
-    //   startedDate: new Date().toISOString()
-    // };
-    // testSessions.push(newSession);
-    // return newSession;
-
-    // For now, we return the first one that matches the testId
-     return testSessions.find(s => s.testId === testId);
-}
-
-
-export const getQuestionsForTest = (testId: string) => {
     const test = getTestById(testId);
-    if (!test) return [];
-    // This is simplified. In reality, you'd use a session's questionIds.
-    return questions.filter(q => test.allQuestionIds.includes(q.id));
+    if (!test) return undefined;
+
+    let sessionQuestionIds: string[] = [];
+    
+    // Logic for tests with subjects
+    if (test.subjects && test.subjects.length > 0) {
+        let allSelectedQuestions: Question[] = [];
+
+        test.subjects.forEach(subject => {
+            // Create a pool of all questions matching the subject's tags
+            const questionPool = questions.filter(q => 
+                subject.tags.every(tagId => q.tags.includes(tagId))
+            );
+            
+            // Shuffle the pool and take the required number of questions
+            const selectedForSubject = shuffleArray(questionPool).slice(0, subject.questionCount);
+            allSelectedQuestions.push(...selectedForSubject);
+        });
+
+        sessionQuestionIds = allSelectedQuestions.map(q => q.id);
+
+    } else if (test.tags && test.questionCount) { // Logic for simple tests with tags and count
+        const questionPool = questions.filter(q => 
+            test.tags!.every(tagId => q.tags.includes(tagId))
+        );
+        sessionQuestionIds = shuffleArray(questionPool).slice(0, test.questionCount).map(q => q.id);
+
+    } else { // Fallback for old test structure
+        sessionQuestionIds = test.allQuestionIds;
+    }
+
+    // Final shuffle of the entire question list
+    sessionQuestionIds = shuffleArray(sessionQuestionIds);
+    
+    // Identify required question groups from the selected questions
+    const requiredGroupIds = new Set<string>();
+    sessionQuestionIds.forEach(qId => {
+        const question = questions.find(q => q.id === qId);
+        if (question && question.groupId) {
+            requiredGroupIds.add(question.groupId);
+        }
+    });
+
+    const newSession: TestSession = {
+      id: `s${Date.now()}`,
+      testId: testId,
+      questionIds: sessionQuestionIds,
+      questionGroupIds: Array.from(requiredGroupIds),
+      startedDate: new Date().toISOString()
+    };
+    
+    // In a real app, this would be saved to a database. Here we add it to the in-memory array.
+    testSessions.push(newSession);
+
+    return newSession;
 }
+
 
 export const getTestAttemptsForUser = () => {
     return testAttempts.sort((a, b) => new Date(b.startedDate).getTime() - new Date(a.startedDate).getTime());
