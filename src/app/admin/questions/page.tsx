@@ -114,6 +114,7 @@ function GroupCard({ group, onEdit, onDelete }: { group: QuestionGroup, onEdit: 
                             <BoxSelect className="h-6 w-6 text-primary" />
                             Question Group
                         </CardTitle>
+                        {group.title && <p className="text-base font-semibold mt-2">{group.title}</p>}
                         {group.referenceText && <CardDescription className="mt-2 italic">"{group.referenceText.substring(0, 150)}..."</CardDescription>}
                     </div>
                      <DropdownMenu>
@@ -429,4 +430,3 @@ export default function QuestionsPage() {
     </>
   );
 }
-

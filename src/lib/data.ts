@@ -12,6 +12,7 @@ export const tags: Tag[] = [
 export const questionGroups: QuestionGroup[] = [
     {
         id: 'g1',
+        title: "For questions 6 to 7",
         referenceText: "The following passage is about the history of computing. Read it carefully and answer the questions that follow.\n\nThe first mechanical computer, created by Charles Babbage in 1822, was called the Difference Engine. It was designed to compute polynomial functions. Ada Lovelace, a mathematician, is often regarded as the first computer programmer for her work on Babbage's analytical engine. Her notes on the engine include what is recognised as the first algorithm intended to be carried out by a machine. Because of this, she is often considered the first computer programmer. The Analytical Engine was a more general-purpose computer. It could be programmed using punched cards. It was intended to be able to perform any calculation that could be imagined.",
         questionIds: ['q6', 'q7'],
         referenceImageUrl: "https://placehold.co/600x400",
@@ -254,5 +255,3 @@ export const getSessionsForUser = () => {
 export const getAttemptsForSession = (sessionId: string) => {
     return testAttempts.filter(a => a.sessionId === sessionId).sort((a, b) => new Date(b.startedDate).getTime() - new Date(a.startedDate).getTime());
 }
-
-  

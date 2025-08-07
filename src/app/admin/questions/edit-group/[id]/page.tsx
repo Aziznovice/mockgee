@@ -35,6 +35,7 @@ const questionSchema = z.object({
 
 const formSchema = z.object({
     isGrouped: z.boolean(),
+    referenceTitle: z.string().optional(),
     referenceText: z.string().optional(),
     referenceImageUrl: z.string().optional(),
     questions: z.array(questionSchema),
@@ -150,6 +151,7 @@ export default function EditQuestionGroupPage() {
         resolver: zodResolver(formSchema),
         defaultValues: {
             isGrouped: true,
+            referenceTitle: group?.title || '',
             referenceText: group?.referenceText || '',
             referenceImageUrl: group?.referenceImageUrl || '',
             questions: groupQuestions.map(q => ({
@@ -210,6 +212,10 @@ export default function EditQuestionGroupPage() {
                     {isGrouped && (
                         <CardContent className="space-y-4 pt-4 border-t">
                             <h3 className="font-medium flex items-center gap-2"><BoxSelect className="h-5 w-5"/> Group Reference</h3>
+                            <div>
+                                <Label htmlFor="referenceTitle">Group Title (Optional)</Label>
+                                <Input id="referenceTitle" {...form.register('referenceTitle')} placeholder="e.g., For questions 1-5" />
+                            </div>
                             <div>
                                 <Label htmlFor="referenceText">Reference Text / Passage (Optional)</Label>
                                 <Textarea id="referenceText" {...form.register('referenceText')} rows={5} />
@@ -333,5 +339,3 @@ export default function EditQuestionGroupPage() {
         </main>
     );
 }
-
-    

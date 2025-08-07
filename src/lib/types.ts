@@ -1,3 +1,4 @@
+
 export interface Choice {
   id: string;
   text: string;
@@ -17,6 +18,7 @@ export interface Question {
 // New Type: A group of questions that share a common reference
 export interface QuestionGroup {
   id: string;
+  title?: string;
   referenceText?: string;
   referenceImageUrl?: string;
   questionIds: string[];
