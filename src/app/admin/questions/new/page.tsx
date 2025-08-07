@@ -196,7 +196,17 @@ export default function NewQuestionPage() {
                              </div>
                              <div className="flex items-center gap-2">
                                 <Label htmlFor="is-grouped">Group Questions</Label>
-                                <Switch id="is-grouped" {...form.register('isGrouped')} />
+                                <Controller
+                                    control={form.control}
+                                    name="isGrouped"
+                                    render={({ field }) => (
+                                        <Switch
+                                            id="is-grouped"
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    )}
+                                />
                              </div>
                         </div>
                     </CardHeader>
@@ -227,11 +237,17 @@ export default function NewQuestionPage() {
                         <CardHeader className="flex-row items-center justify-between">
                             <div>
                                 <CardTitle>Question {index + 1}</CardTitle>
-                                <CardDescription>Enter the question text, choices, and correct answer.</CardDescription>
+                                {isGrouped ? (
+                                    <CardDescription>Enter the details for this question in the group.</CardDescription>
+                                ) : (
+                                    <CardDescription>Enter the question text, choices, and correct answer.</CardDescription>
+                                )}
                             </div>
-                             <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)} disabled={fields.length <= 1}>
-                                <Trash2 className="h-4 w-4" />
-                             </Button>
+                             {isGrouped && (
+                                <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)} disabled={fields.length <= 1}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                             )}
                         </CardHeader>
                         <CardContent className="space-y-6">
                              <div>
@@ -326,5 +342,3 @@ export default function NewQuestionPage() {
         </main>
     );
 }
-
-    
